@@ -1,9 +1,9 @@
 #!/usr/bin/env Rscript
 
 
-library(data.table)
-library(stringr)
-library(dplyr)
+suppressPackageStartupMessages(library(data.table))
+suppressPackageStartupMessages(library(stringr))
+suppressPackageStartupMessages(library(dplyr))
 
 
 args = commandArgs(trailingOnly=TRUE)

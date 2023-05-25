@@ -1,7 +1,7 @@
 #!/usr/bin/env Rscript
 
-library(data.table)
-library(dplyr)
+suppressPackageStartupMessages(library(data.table))
+suppressPackageStartupMessages(library(dplyr))
 
 ## only argument is the directory where the *.detected_species.tsv files are located
 args = commandArgs(trailingOnly=TRUE)
