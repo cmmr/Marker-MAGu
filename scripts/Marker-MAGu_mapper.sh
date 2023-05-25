@@ -164,12 +164,21 @@ if [ -s ${TEMP_DIR}/${SAMPLE}.MM_input.fastq ] ; then
     MDYT=$( date +"%m-%d-%y---%T" )
     echo "Time Update: running treshold enforcer/abundance calculator Rscript on ${SAMPLE} @ $MDYT"
 
-    Rscript ${MARKERMAGU_DIR}/make_abundance_table.R ${TEMP_DIR}/${SAMPLE}.mpa_TGVG.unique_alignment.coverm.tsv $FILTERED_READS ${OUT_DIR}/${SAMPLE} ${SAMPLE}
+    Rscript ${MARKERMAGU_DIR}/make_abundance_table.R ${TEMP_DIR}/${SAMPLE}.marker-magu.unique_alignment.coverm.tsv $FILTERED_READS ${OUT_DIR}/${SAMPLE} ${SAMPLE}
 
 else
     echo "${TEMP_DIR}/${SAMPLE}.MM_input.fastq not found"
 fi
 
+## delete temp
+if [ "$KEEP" == "True" ] ; then
+    echo "Keeping temporary files in: ${TEMP_DIR}"
+else
+    echo "Removing temp files"
+    rm ${TEMP_DIR}/*
+fi
+
+## finish
 echo "Main Output Files Generated in ${OUT_DIR}/"
 
 find ${OUT_DIR}/ -type f -name "${SAMPLE}.detected_species.tsv"
