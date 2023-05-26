@@ -11,11 +11,11 @@ Basically, this tool uses the strategy (marker gene detection) and database (mar
 
 *The relative abundance of bacteria/archaea/microeukaryotes with be nearly identical to `Metaphlan4`, BUT `Marker-MAGu` is a bit less sensitive and a bit more specific. `Marker-MAGu` uses a stricter threshold (75% of marker genes) than `Metaphlan4` (33% of marker genes by default), so this is expected.*
 
-Also, as in `Metaphlan4` **SGBs**, or **S**pecies-level **G**enome **B**ins are genomically-defined species.
+Also, as in `Metaphlan4` **SGBs**, or **S**pecies-level **G**enome **B**ins are genomically-distinct species.
 
 ## Schematic
 
-![Schematic](schematic/schematic1.png)
+![Marker-MAGu](schematic/schematic1.png)
 
 ## Installation
 
@@ -29,27 +29,33 @@ Also, as in `Metaphlan4` **SGBs**, or **S**pecies-level **G**enome **B**ins are 
 
 `cd Marker-MAGu`
 
-3)  use the file `environment/Marker-MAGu.yml` with `conda create` to generate the environment used with this tool
+3)  **Must have Conda installed:** use the file `environment/Marker-MAGu.yml` with `conda create` to generate the environment used with this tool.
 
 `conda env create --file environments/Marker-MAGu.yml`
 
-4)  Activate the environment
+Note: if you can't or won't use `Conda` for environment management, you can check out the packages in`environment/Marker-MAGu.yml` and install packages manually.
+
+4)  Activate the environment.
 
 `conda activate Marker-MAGu`
 
-5)  Download the database in the `Marker-MAGu` directory (\~300 MB when decompressed).
+5)  Download the database in the `Marker-MAGu` directory (\~9.6 GB when decompressed).
 
 `cd Marker-MAGu`
 
-***Add in when database is uploaded to Zenodo*** `wget`
+`mkdir DBs && cd DBs`
+
+`wget https://zenodo.org/record/7975097/files/Marker-MAGu_markerDB_v1.0.tar.gz`
 
 `md5sum`
 
-should return `md5sum digits`
+should return `2e3a44c790765c55dcdc5e5d4521ac3a`
 
-`tar -xvf tar.gz`
+`tar -xvf Marker-MAGu_markerDB_v1.0.tar.gz`
 
-`rm tar.gz`
+You should now have the database at: `Marker-MAGu/DBs/v1.0/Marker-MAGu_markerDB.fna`
+
+`rm Marker-MAGu_markerDB_v1.0.tar.gz`
 
 ## (OPTIONAL) Database for filtering out host reads and spike-ins
 
@@ -86,9 +92,9 @@ You might run this as part of a bash script, do your own upstream read processin
 
 *Required inputs:*
 
-`-r reads file (.fastq)`
+`-r reads file(s) (.fastq)`
 
-`-s sample name`
+`-s sample name (no space characters)`
 
 `-t # of threads`
 
@@ -184,3 +190,6 @@ Relative abundance values from each sample will add up to 1, so there is no "unk
 Currently, `Marker-MAGu` only profiles phages with 4 or more unique marker genes, so small, ssDNA phages such as microviruses and inoviruses are unlikely to be detectable. I'm working on it.
 
 Should any issues arise, please leave an issue in this GitHub Repo.
+
+## Citation
+(insert)
