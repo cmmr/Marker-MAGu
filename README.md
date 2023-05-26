@@ -31,7 +31,7 @@ Also, as in `Metaphlan4` **SGBs**, or **S**pecies-level **G**enome **B**ins are 
 
 3)  **Must have Conda installed:** use the file `environment/Marker-MAGu.yml` with `conda create` to generate the environment used with this tool.
 
-`conda env create --file environments/Marker-MAGu.yml`
+`conda env create --file environment/Marker-MAGu.yml`
 
 Note: if you can't or won't use `Conda` for environment management, you can check out the packages in`environment/Marker-MAGu.yml` and install packages manually.
 

@@ -17,3 +17,4 @@ dependencies:
   - coverm
   - seqkit
   - fastp[version='>=0.23.2']
+  - r-stringr
