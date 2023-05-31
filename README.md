@@ -191,5 +191,171 @@ Currently, `Marker-MAGu` only profiles phages with 4 or more unique marker genes
 
 Should any issues arise, please leave an issue in this GitHub Repo.
 
+# Adding your own virus hallmark genes to Marker-MAGu
+
+A walkthrough
+
+### Input
+
+Multi-fasta file with genome sequences of viruses
+
+In this walkthrough, we will use `my_viruses1.fna`
+
+### Package/tool versions used
+
+It might be easiest to install these in a new conda environment. Tool versions might not matter too much.
+
+```         
+seqkit v2.2.0
+bioawk v1.0
+prodigal v2.6.3
+hmmer v3.3
+MMseqs2 Version: 14.7e284
+blast v2.9.0
+```
+
+### HMMER database for virus hallmark gene identification
+
+*This is the HMMER database used by `Cenote-Taker 2` for virus identification*
+
+**1) navigate to a new directory for processing data**
+
+**2) download DB**
+
+`wget https://zenodo.org/record/4966268/files/hmmscan_DBs.tgz`
+
+**3) unpack**
+
+`tar -xvf hmmscan_DBs.tgz`
+
+### Call ORFs, Identify hallmark genes
+
+**1) call genes**
+
+```         
+prodigal -a my_viruses1.prot.faa -d my_viruses1.genes.fna -i my_viruses1.fna -p meta -q
+```
+
+**2) hmmscan virus virion and replication HMMER databases**
+
+```         
+hmmscan --tblout my_viruses1.hmmscan_virion.out --cpu 16 -E 1e-8 --noali hmmscan_DBs/virus_specific_baits_plus_missed6a my_viruses1.prot.faa
+```
+
+then
+
+```         
+hmmscan --tblout my_viruses1.hmmscan_replicate.out --cpu 16 -E 1e-15 --noali hmmscan_DBs/virus_replication_clusters3 my_viruses1.prot.faa
+```
+
+**3) combine tables**
+
+```         
+cat my_viruses1.hmmscan_virion.out my_viruses1.hmmscan_replicate.out | grep -v "^#" | sed 's/ \+/   /g' | sort -u -k3,3 > my_viruses1.all_hmmscan_fmt.out
+```
+
+```         
+cut -f3 my_viruses1.all_hmmscan_fmt.out > my_viruses1.hallmark_gene_list.txt
+```
+
+**4) Retreive hallmark genes**
+
+```         
+seqkit grep -j 16 -f my_viruses1.hallmark_gene_list.txt my_viruses1.genes.fna > my_viruses1.hallmark_genes.nucl.fna
+```
+
+```         
+seqkit grep -j 16 -f my_viruses1.hallmark_gene_list.txt my_viruses1.prot.fna > my_viruses1.hallmark_genes.prot.faa
+```
+
+### Parse genomes
+
+**1) Get list of genomes with minimum number of hallmark genes**
+
+This command will only keep genomes with 4 or more hallmark genes as is recommended for `Marker-MAGu`. See awk expression `if ($1>=4)`.
+
+```
+sed 's/[^_]*$//' my_viruses1.hallmark_gene_list.txt | sort | uniq -c | awk '{if ($1>=4) {print $2}}' > my_viruses1.unique_genomes_list.txt
+```
+
+**2) Make fastas of genome-specific marker genes**
+
+```
+mkdir indiv_genomes
+
+cat my_viruses1.unique_genomes_list.txt | xargs -n 1 -I {} -P 16 seqkit grep -j 1 --quiet -r -p "{}" my_viruses1.hallmark_genes.nucl.fna -o indiv_genomes/{}_hmg.fna
+```
+
+**3) Concatenate hallmark genes for each genome**
+
+```
+HMGS=$( find indiv_genomes/ -type f -name "*__hmg.fna" | sed 's/\.fna//g' )
+if [ -n "$HMGS" ] ; then
+	for HM in $HMGS ; do 
+		bioawk -v genq="${HM#indiv_genomes/}" -c fastx '{if (NR == 1) {print ">"genq ; print $seq} else {print $seq }}' ${HM}.fna > ${HM}.concat.fna ; 
+	done
+else
+	echo "hallmark gene files for each genome NOT found"
+fi
+
+cat indiv_genomes/*_hmg.concat.fna > my_viruses1.hallmark_genes.nucl.concat.fna
+```
+
+### Compare concatenated hallmark gene sequences against each other to dereplicate redundant sequences
+
+**1) BLASTN**
+
+```
+mkdir blast_DBs
+
+makeblastdb -in my_viruses1.hallmark_genes.nucl.concat.fna -dbtype nucl -out blast_DBs/my_viruses1.hallmark_genes.nucl.concat
+
+blastn -query my_viruses1.hallmark_genes.nucl.concat.fna -db blast_DBs/my_viruses1.hallmark_genes.nucl.concat -outfmt '6 std qlen slen' -max_target_seqs 10000 -perc_identity 90 -out my_viruses1.hallmark_genes.nucl.concat.blastn.tsv -num_threads 16
+```
+
+**2) anicalc/aniclust to find redundant sequences**
+
+```
+python /path/to/Marker-MAGu/scripts/anicalc.py -i my_viruses1.hallmark_genes.nucl.concat.blastn.tsv -o my_viruses1.hallmark_genes.nucl.concat.anicalc.tsv
+
+python /path/to/Marker-MAGu/scripts/aniclust.py --fna my_viruses1.hallmark_genes.nucl.concat.fna --ani my_viruses1.hallmark_genes.nucl.concat.anicalc.tsv --out my_viruses1.hallmark_genes.nucl.concat.aniclust.ANI95_TCOV85.tsv --min_ani 95 --min_tcov 85 --min_qcov 0
+
+cut -f1 my_viruses1.hallmark_genes.nucl.concat.aniclust.ANI95_TCOV85.tsv > my_viruses1.hallmark_genes.nucl.concat.exemplars1.txt
+```
+
+**3) Retreive all the INDIVIDUAL hallmark genes for exemplars**
+
+```
+bioawk -c fastx '{print $name, $seq}' my_viruses1.hallmark_genes.nucl.fna | grep -F -f my_viruses1.hallmark_genes.nucl.concat.exemplars1.txt | awk '{OFS=FS="\t"}{print ">" $1 ; print $2}' > my_viruses1.hallmark_genes.nucl.exemplars1.fna
+```
+
+### Add marker genes to Marker-MAGu
+
+**1) Format marker genes for `Marker-MAGu`**
+
+This is kind of an unrefined piece of code as it does not assign meaningful taxonomical assignments at any level except species ("s__"), which it merely assigns the sequence name. However, it does fulfill the requirements for `Marker-MAGu`, which is to format the header as:
+
+*gene_name;hierarchical_taxonomy;genome_of_origin_name*
+
+```
+sed 's/[^_]*$/@_&/ ; s/^@_//g' my_viruses1.hallmark_genes.nucl.exemplars1.fna | bioawk -c fastx '{ split($name, a, "@_") ; print ">"a[1]a[2]";k__Viruses|p__Unclassified_viruses|c__Unclassified_viruses|o__Unclassified_viruses|f__Unclassified_viruses|g__Unclassified_viruses|s__vOTU_"a[1]";"a[1] ; print $seq}' > my_viruses1.hallmark_genes.nucl.exemplars1.fmt.fna
+```
+
+If you want to assign more complex taxonomy to your sequences based on some other tool, please reach out and I can upload some additional scripts to the repo.
+
+**2) Concatenate your formatted marker genes to the existing `Marker-MAGu` database** 
+
+```
+cd Marker-MAGu/DBs
+
+mkdir v_my_viruses1
+
+cat v1.0/Marker-MAGu_markerDB.fna /path/to/my_viruses1.hallmark_genes.nucl.exemplars1.fmt.fna > v_my_viruses1/Marker-MAGu_markerDB.fna
+```
+
+That's it. Remember to specify the updated database when running `Marker-MAGu`. E.g. `--db v_my_viruses1`
+
+
 ## Citation
+
 (insert)
