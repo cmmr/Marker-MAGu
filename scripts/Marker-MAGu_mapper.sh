@@ -87,6 +87,8 @@ echo "Remove host/spikein seqs:     $FILTER_SEQS" >> ${OUT_DIR}/record/${SAMPLE}
 echo "Temp directory path:          $TEMP_DIR" >> ${OUT_DIR}/record/${SAMPLE}.arguments.txt
 echo "Keep temp files:              $KEEP" >> ${OUT_DIR}/record/${SAMPLE}.arguments.txt
 echo "Marker-MAGu script directory: $MARKERMAGU_DIR" >> ${OUT_DIR}/record/${SAMPLE}.arguments.txt
+echo "Marker-MAGu database used:    ${DB_DIR}/Marker-MAGu_markerDB.fna" >> ${OUT_DIR}/record/${SAMPLE}.arguments.txt
+
 
 cat ${OUT_DIR}/record/${SAMPLE}.arguments.txt
 
