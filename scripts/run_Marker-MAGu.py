@@ -35,7 +35,7 @@ required_args.add_argument("-o", "--output_dir",
                            dest="OUTPUT_DIR", type=str, required=True, 
                            help='Output directory name. Will be created if it does not exist. Can be shared with other samples. No space characters, please. ')
 
-__version__='v0.1.1'
+__version__='0.1.1'
 
 optional_args = parser.add_argument_group(' OPTIONAL ARGUMENTS for Marker-MAGu.')
 
