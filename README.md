@@ -197,7 +197,7 @@ A command line walkthrough for users wishing to add their own viruses to the `Ma
 
 ### Input
 
-Multi-fasta file with genome sequences of viruses
+Multi-fasta file with genome sequences of viruses. If you have a very large file (thousands of genomes), the hmmscan and BLASTN steps may take a while.
 
 In this walkthrough, we will use `my_viruses1.fna`, so we will set a variable with the stem of this file name:
 
@@ -253,7 +253,7 @@ hmmscan --tblout ${MYSEQS}.hmmscan_replicate.out --cpu 16 -E 1e-15 --noali hmmsc
 **3) combine tables**
 
 ```         
-cat ${MYSEQS}.hmmscan_virion.out ${MYSEQS}.hmmscan_replicate.out | grep -v "^#" | sed 's/ \+/   /g' | sort -u -k3,3 > ${MYSEQS}.all_hmmscan_fmt.out
+cat ${MYSEQS}.hmmscan_virion.out ${MYSEQS}.hmmscan_replicate.out | grep -v "^#" | sed 's/ \+/\'$'\t/g' | sort -u -k3,3 > ${MYSEQS}.all_hmmscan_fmt.out
 ```
 
 ```         
@@ -267,7 +267,7 @@ seqkit grep -j 16 -f ${MYSEQS}.hallmark_gene_list.txt ${MYSEQS}.genes.fna > ${MY
 ```
 
 ```         
-seqkit grep -j 16 -f ${MYSEQS}.hallmark_gene_list.txt ${MYSEQS}.prot.fna > ${MYSEQS}.hallmark_genes.prot.faa
+seqkit grep -j 16 -f ${MYSEQS}.hallmark_gene_list.txt ${MYSEQS}.prot.faa > ${MYSEQS}.hallmark_genes.prot.faa
 ```
 
 ### Parse genomes
@@ -277,7 +277,7 @@ seqkit grep -j 16 -f ${MYSEQS}.hallmark_gene_list.txt ${MYSEQS}.prot.fna > ${MYS
 This command will only keep genomes with 4 or more hallmark genes as is recommended for `Marker-MAGu`. See awk expression `if ($1>=4)`.
 
 ```
-sed 's/[^_]*$//' ${MYSEQS}.hallmark_gene_list.txt | sort | uniq -c | awk '{if ($1>=4) {print $2}}' > ${MYSEQS}.unique_genomes_list.txt
+sed 's/[^_]*$//' ${MYSEQS}.hallmark_gene_list.txt | sort | uniq -c | awk '{if ($1>=4) {print $2}}' > ${MYSEQS}.marker_genomes_list.txt
 ```
 
 **2) Make fastas of genome-specific marker genes**
@@ -285,7 +285,7 @@ sed 's/[^_]*$//' ${MYSEQS}.hallmark_gene_list.txt | sort | uniq -c | awk '{if ($
 ```
 mkdir indiv_genomes
 
-cat ${MYSEQS}.unique_genomes_list.txt | xargs -n 1 -I {} -P 16 seqkit grep -j 1 --quiet -r -p "{}" ${MYSEQS}.hallmark_genes.nucl.fna -o indiv_genomes/{}_hmg.fna
+cat ${MYSEQS}.marker_genomes_list.txt | xargs -n 1 -I {} -P 16 seqkit grep -j 1 --quiet -r -p "{}" ${MYSEQS}.hallmark_genes.nucl.fna -o indiv_genomes/{}_hmg.fna
 ```
 
 **3) Concatenate hallmark genes for each genome**
@@ -304,6 +304,9 @@ cat indiv_genomes/*_hmg.concat.fna > ${MYSEQS}.hallmark_genes.nucl.concat.fna
 ```
 
 ### Compare concatenated hallmark gene sequences against each other to dereplicate redundant sequences
+
+NOTE: If all-vs-all BLASTN only returns self-alignments, the `anicalc.py` script will return an error. In this case, just use the `${MYSEQS}.marker_genomes_list.txt` file instead of the `${MYSEQS}.hallmark_genes.nucl.concat.exemplars1.txt` for step 3).
+
 
 **1) BLASTN**
 
