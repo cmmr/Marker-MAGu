@@ -16,7 +16,8 @@ QUAL=$5
 FILTER_SEQS=$6
 TEMP_DIR=$7
 KEEP=$8
-MARKERMAGU_DIR=$9
+MM_DB=$9
+MARKERMAGU_DIR=${10}
 
 MDYT=$( date +"%m-%d-%y---%T" )
 echo "Time Update: Starting main bash mapper script for Marker-MAGu @ $MDYT"
@@ -49,7 +50,11 @@ if [ "$FILTER_SEQS" == "True" ] && [ ! -s ${MARKERMAGU_DIR%scripts}filter_seqs/f
 fi
 
 ## check database
-DB_DIR=$( find ${MARKERMAGU_DIR%scripts}DBs/ -type d | tail -n1 )
+if [ "$MM_DB" == "default" ] ; then
+    DB_DIR=$( find ${MARKERMAGU_DIR%scripts}DBs/ -type d -name "v*" | tail -n1 )
+else
+    DB_DIR=${MARKERMAGU_DIR%scripts}DBs/${MM_DB}
+fi
 
 if [ ! -d ${DB_DIR} ] ; then
     echo "can't find DB directory. should be a versioned directory here: ${MARKERMAGU_DIR%scripts}DBs/ "

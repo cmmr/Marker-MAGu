@@ -35,9 +35,11 @@ required_args.add_argument("-o", "--output_dir",
                            dest="OUTPUT_DIR", type=str, required=True, 
                            help='Output directory name. Will be created if it does not exist. Can be shared with other samples. No space characters, please. ')
 
+__version__='v0.1.1'
+
 optional_args = parser.add_argument_group(' OPTIONAL ARGUMENTS for Marker-MAGu.')
 
-optional_args.add_argument('--version', action='version', version='v0.0.1')
+optional_args.add_argument('--version', action='version', version=str(__version__))
 optional_args.add_argument('-q', "--qual", dest="QUAL", type=str2bool, default='False',
                            help='True or False. Remove low-quality reads with fastp?')
 optional_args.add_argument('-f', "--filter_seqs", dest="FILTER_SEQS", type=str2bool, default='False',
@@ -48,10 +50,15 @@ optional_args.add_argument("--temp",
 optional_args.add_argument("--keep", 
                            dest="KEEP", type=str2bool, default='False',
                            help='True of False. Keep the intermediate files, located in the temporary directory? These can add up, so it is not recommended if space is a concern.')
+optional_args.add_argument("--db", 
+                           dest="DB", type=str, default='default',
+                           help='DB version. default will find the most recently released version. If you make a custom database, be sure to specify with this argument')
 
 args = parser.parse_args()
 
 READS = ' '.join(map(str,args.READS))
+
+print("version ", str(__version__))
 
 #print(READS)
 
@@ -101,5 +108,5 @@ else:
 subprocess.call(['bash', str(markermagu_script_path) + '/Marker-MAGu_mapper.sh', 
             str(READS), str(args.SAMPLE), str(args.CPU), str(args.OUTPUT_DIR), 
             str(args.QUAL), str(args.FILTER_SEQS), str(args.TEMP_DIR), 
-            str(args.KEEP), str(markermagu_script_path)])
+            str(args.KEEP), str(args.DB), str(markermagu_script_path)])
 
