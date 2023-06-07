@@ -14,7 +14,9 @@ def str2bool(v):
     else:
         raise argparse.ArgumentTypeError('Boolean value expected.')
     
-pathname = os.path.dirname(sys.argv[0])  
+#pathname = os.path.dirname(sys.argv[0])
+pathname = os.path.dirname(__file__)
+
 markermagu_script_path = os.path.abspath(pathname)      
 print(markermagu_script_path) 
 
