@@ -109,31 +109,31 @@ Individual samples can be run with the python script. E.g.:
 **Basic run with 1 .fastq file:**
 
 ```         
-python /path/to/Marker-MAGu/scripts/run_Marker-MAGu.py -r /path/to/reads/myreads.fastq -s sample_ABC -t 16 -o myproject_MM1
+markermagu -r /path/to/reads/myreads.fastq -s sample_ABC -t 16 -o myproject_MM1
 ```
 
 **Using multiple input .fastq files (`Marker-MAGu` doesn't used paired-end info)**
 
 ```         
-python /path/to/Marker-MAGu/scripts/run_Marker-MAGu.py -r /path/to/reads/myreads1.fastq /path/to/reads/myreads2.fastq -s sample_ABC -t 16 -o myproject_MM1
+markermagu -r /path/to/reads/myreads1.fastq /path/to/reads/myreads2.fastq -s sample_ABC -t 16 -o myproject_MM1
 ```
 
 **Using multiple input .fastq files with wildcard**
 
 ```         
-python /path/to/Marker-MAGu/scripts/run_Marker-MAGu.py -r /path/to/reads/*.fastq -s sample_ABC -t 16 -o myproject_MM1
+markermagu -r /path/to/reads/*.fastq -s sample_ABC -t 16 -o myproject_MM1
 ```
 
 **With pre-filtering steps:**
 
 ```         
-python /path/to/Marker-MAGu/scripts/run_Marker-MAGu.py -r /path/to/reads/myreads.fastq -s sample_ABC -t 16 -o myproject_MM1 -q True -f True
+markermagu -r /path/to/reads/myreads.fastq -s sample_ABC -t 16 -o myproject_MM1 -q True -f True
 ```
 
 **Help menu**
 
 ```         
-python /path/to/Marker-MAGu/scripts/run_Marker-MAGu.py -h
+markermagu -h
 ```
 
 ## Combine Output tables in a Project Directory
