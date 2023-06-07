@@ -42,22 +42,22 @@ elif [ -d $TEMP_DIR ] ; then
 fi
 
 ## check filter_seqs
-if [ "$FILTER_SEQS" == "True" ] && [ ! -s ${MARKERMAGU_DIR%scripts}filter_seqs/filter_seqs.fna ]; then
+if [ "$FILTER_SEQS" == "True" ] && [ ! -s ${MARKERMAGU_DIR%src}filter_seqs/filter_seqs.fna ]; then
     echo "-f True flag requires that this file exists and is not empty: "
-    echo "${MARKERMAGU_DIR%scripts}filter_seqs/filter_seqs.fna"
+    echo "${MARKERMAGU_DIR%src}filter_seqs/filter_seqs.fna"
     echo "exiting"
     exit
 fi
 
 ## check database
 if [ "$MM_DB" == "default" ] ; then
-    DB_DIR=$( find ${MARKERMAGU_DIR%scripts}DBs/ -type d -name "v*" | tail -n1 )
+    DB_DIR=$( find ${MARKERMAGU_DIR%src}DBs/ -type d -name "v*" | tail -n1 )
 else
-    DB_DIR=${MARKERMAGU_DIR%scripts}DBs/${MM_DB}
+    DB_DIR=${MARKERMAGU_DIR%src}DBs/${MM_DB}
 fi
 
 if [ ! -d ${DB_DIR} ] ; then
-    echo "can't find DB directory. should be a versioned directory here: ${MARKERMAGU_DIR%scripts}DBs/ "
+    echo "can't find DB directory. should be a versioned directory here: ${MARKERMAGU_DIR%src}DBs/ "
     echo "exiting"
     exit
 fi
@@ -117,7 +117,7 @@ if [ "$QUAL" == "True" ] && [ "$FILTER_SEQS" == "True" ] ; then
     ##filter
     cat ${READS} | \
     fastp --stdin --stdout -w $CPUS -D 1 --html=${OUT_DIR}/record/${SAMPLE}.fastp.html --json=${OUT_DIR}/record/${SAMPLE}.fastp.json | \
-    minimap2 -t $CPUS -ax sr ${MARKERMAGU_DIR%scripts}filter_seqs/filter_seqs.fna - | \
+    minimap2 -t $CPUS -ax sr ${MARKERMAGU_DIR%src}filter_seqs/filter_seqs.fna - | \
     samtools fastq -n -f 4 - > ${TEMP_DIR}/${SAMPLE}.MM_input.fastq
 
 elif [ "$QUAL" == "True" ] ; then
@@ -134,7 +134,7 @@ elif [ "$FILTER_SEQS" == "True" ] ; then
 
     ##filter
     cat ${READS} | 
-    minimap2 -t $CPUS -ax sr ${MARKERMAGU_DIR%scripts}filter_seqs/filter_seqs.fna - | samtools fastq -n -f 4 - > ${TEMP_DIR}/${SAMPLE}.MM_input.fastq
+    minimap2 -t $CPUS -ax sr ${MARKERMAGU_DIR%src}filter_seqs/filter_seqs.fna - | samtools fastq -n -f 4 - > ${TEMP_DIR}/${SAMPLE}.MM_input.fastq
 
 else
     ## cat
