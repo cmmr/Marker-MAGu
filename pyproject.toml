@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "Marker-MAGu"
+version = "0.2.0"
+authors = [
+    {name = "Mike Tisza", email = "michael.tisza@gmail.com"}
+]
+description = "Quantify phage and bacteria with marker genes"
+readme = "README.md"
+
+
+[project.scripts]
+markermagu = "markermagu:markermagu"

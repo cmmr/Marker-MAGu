@@ -109,31 +109,31 @@ Individual samples can be run with the python script. E.g.:
 **Basic run with 1 .fastq file:**
 
 ```         
-python /path/to/Marker-MAGu/scripts/run_Marker-MAGu.py -r /path/to/reads/myreads.fastq -s sample_ABC -t 16 -o myproject_MM1
+markermagu -r /path/to/reads/myreads.fastq -s sample_ABC -t 16 -o myproject_MM1
 ```
 
 **Using multiple input .fastq files (`Marker-MAGu` doesn't used paired-end info)**
 
 ```         
-python /path/to/Marker-MAGu/scripts/run_Marker-MAGu.py -r /path/to/reads/myreads1.fastq /path/to/reads/myreads2.fastq -s sample_ABC -t 16 -o myproject_MM1
+markermagu -r /path/to/reads/myreads1.fastq /path/to/reads/myreads2.fastq -s sample_ABC -t 16 -o myproject_MM1
 ```
 
 **Using multiple input .fastq files with wildcard**
 
 ```         
-python /path/to/Marker-MAGu/scripts/run_Marker-MAGu.py -r /path/to/reads/*.fastq -s sample_ABC -t 16 -o myproject_MM1
+markermagu -r /path/to/reads/*.fastq -s sample_ABC -t 16 -o myproject_MM1
 ```
 
 **With pre-filtering steps:**
 
 ```         
-python /path/to/Marker-MAGu/scripts/run_Marker-MAGu.py -r /path/to/reads/myreads.fastq -s sample_ABC -t 16 -o myproject_MM1 -q True -f True
+markermagu -r /path/to/reads/myreads.fastq -s sample_ABC -t 16 -o myproject_MM1 -q True -f True
 ```
 
 **Help menu**
 
 ```         
-python /path/to/Marker-MAGu/scripts/run_Marker-MAGu.py -h
+markermagu -h
 ```
 
 ## Combine Output tables in a Project Directory
@@ -321,9 +321,9 @@ blastn -query ${MYSEQS}.hallmark_genes.nucl.concat.fna -db blast_DBs/${MYSEQS}.h
 **2) anicalc/aniclust to find redundant sequences**
 
 ```
-python /path/to/Marker-MAGu/scripts/anicalc.py -i ${MYSEQS}.hallmark_genes.nucl.concat.blastn.tsv -o ${MYSEQS}.hallmark_genes.nucl.concat.anicalc.tsv
+python /path/to/Marker-MAGu/src/utils/anicalc.py -i ${MYSEQS}.hallmark_genes.nucl.concat.blastn.tsv -o ${MYSEQS}.hallmark_genes.nucl.concat.anicalc.tsv
 
-python /path/to/Marker-MAGu/scripts/aniclust.py --fna ${MYSEQS}.hallmark_genes.nucl.concat.fna --ani ${MYSEQS}.hallmark_genes.nucl.concat.anicalc.tsv --out ${MYSEQS}.hallmark_genes.nucl.concat.aniclust.ANI95_TCOV85.tsv --min_ani 95 --min_tcov 85 --min_qcov 0
+python /path/to/Marker-MAGu/src/utils/aniclust.py --fna ${MYSEQS}.hallmark_genes.nucl.concat.fna --ani ${MYSEQS}.hallmark_genes.nucl.concat.anicalc.tsv --out ${MYSEQS}.hallmark_genes.nucl.concat.aniclust.ANI95_TCOV85.tsv --min_ani 95 --min_tcov 85 --min_qcov 0
 
 cut -f1 ${MYSEQS}.hallmark_genes.nucl.concat.aniclust.ANI95_TCOV85.tsv > ${MYSEQS}.hallmark_genes.nucl.concat.exemplars1.txt
 ```
