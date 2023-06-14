@@ -21,7 +21,10 @@ markermagu_script_path = os.path.abspath(pathname)
 print(markermagu_script_path) 
 
 def markermagu():
-    parser = argparse.ArgumentParser(description='Marker-MAGu is a read mapping pipeline which uses marker genes to detect and measure bacteria, phages, archaea, and microeukaryotes. Version 0.0.1')
+
+    __version__='0.2.0'
+
+    parser = argparse.ArgumentParser(description='Marker-MAGu is a read mapping pipeline which uses marker genes to detect and measure bacteria, phages, archaea, and microeukaryotes. Version ' + str(__version__))
 
     required_args = parser.add_argument_group(' REQUIRED ARGUMENTS for Marker-MAGu ')
 
@@ -38,7 +41,7 @@ def markermagu():
                             dest="OUTPUT_DIR", type=str, required=True, 
                             help='Output directory name. Will be created if it does not exist. Can be shared with other samples. No space characters, please. ')
 
-    __version__='0.1.1'
+    
 
     optional_args = parser.add_argument_group(' OPTIONAL ARGUMENTS for Marker-MAGu.')
 
@@ -61,7 +64,7 @@ def markermagu():
 
     READS = ' '.join(map(str,args.READS))
 
-    print("version ", str(__version__))
+    #print("version ", str(__version__))
 
     if args.DB == "default" and os.getenv('MARKERMAGU_DB') != None:
         args.DB = os.getenv('MARKERMAGU_DB')
@@ -114,5 +117,5 @@ def markermagu():
     subprocess.call(['bash', str(markermagu_script_path) + '/Marker-MAGu_mapper.sh', 
                 str(READS), str(args.SAMPLE), str(args.CPU), str(args.OUTPUT_DIR), 
                 str(args.QUAL), str(args.FILTER_SEQS), str(args.TEMP_DIR), 
-                str(args.KEEP), str(args.DB), str(markermagu_script_path)])
+                str(args.KEEP), str(args.DB), str(__version__), str(markermagu_script_path)])
 

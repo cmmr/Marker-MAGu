@@ -17,15 +17,16 @@ FILTER_SEQS=$6
 TEMP_DIR=$7
 KEEP=$8
 MM_DB=$9
-MARKERMAGU_DIR=${10}
+MM_VERSION=${10}
+MARKERMAGU_DIR=${11}
 
 MDYT=$( date +"%m-%d-%y---%T" )
 echo "Time Update: Starting main bash mapper script for Marker-MAGu @ $MDYT"
 
 #arguments check
-if [ $# -ne 10 ] ; then 
-    echo "expected 9 arguments passed on the command line:"
-    echo "read file(s), sample ID, CPUs, output directory, trim by quality?, filter seqs?, temp directory path, keep temp?, db version, Marker-MAGu script directory"
+if [ $# -ne 11 ] ; then 
+    echo "expected 11 arguments passed on the command line:"
+    echo "read file(s), sample ID, CPUs, output directory, trim by quality?, filter seqs?, temp directory path, keep temp?, db version, tool version, Marker-MAGu script directory"
     echo "exiting"
     exit
 fi
@@ -88,6 +89,7 @@ echo "Remove host/spikein seqs:     $FILTER_SEQS" >> ${OUT_DIR}/record/${SAMPLE}
 echo "Temp directory path:          $TEMP_DIR" >> ${OUT_DIR}/record/${SAMPLE}.arguments.txt
 echo "Keep temp files:              $KEEP" >> ${OUT_DIR}/record/${SAMPLE}.arguments.txt
 echo "Marker-MAGu script directory: $MARKERMAGU_DIR" >> ${OUT_DIR}/record/${SAMPLE}.arguments.txt
+echo "Marker-MAGu tool version:     $MM_VERSION" >> ${OUT_DIR}/record/${SAMPLE}.arguments.txt
 echo "Marker-MAGu database used:    ${MM_DB}/Marker-MAGu_markerDB.fna" >> ${OUT_DIR}/record/${SAMPLE}.arguments.txt
 
 
