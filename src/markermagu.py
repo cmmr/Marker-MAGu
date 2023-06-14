@@ -55,7 +55,7 @@ def markermagu():
                             help='True of False. Keep the intermediate files, located in the temporary directory? These can add up, so it is not recommended if space is a concern.')
     optional_args.add_argument("--db", 
                             dest="DB", type=str, default='default',
-                            help='DB version. default will find the most recently released version. If you make a custom database, be sure to specify with this argument')
+                            help='DB path. If not set, Marker-MAGu looks for environmental variable MARKERMAGU_DB. Then, if this variable is unset, it this is unset, DB path is assumed to be ' + markermagu_script_path.replace("src", "DBs/v1.0"))
 
     args = parser.parse_args()
 
@@ -63,7 +63,10 @@ def markermagu():
 
     print("version ", str(__version__))
 
-    #print(READS)
+    if args.DB == "default" and os.getenv('MARKERMAGU_DB') != None:
+        args.DB = os.getenv('MARKERMAGU_DB')
+    else:
+        args.DB = markermagu_script_path.replace("src", "DBs/v1.0")
 
     # check if R script with libraries returns good exit code
     completedProc = subprocess.run(['Rscript', str(markermagu_script_path) + '/check_R_libraries1.R'])

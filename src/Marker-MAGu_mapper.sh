@@ -49,21 +49,17 @@ if [ "$FILTER_SEQS" == "True" ] && [ ! -s ${MARKERMAGU_DIR%src}filter_seqs/filte
     exit
 fi
 
-## check database
-if [ "$MM_DB" == "default" ] ; then
-    DB_DIR=$( find ${MARKERMAGU_DIR%src}DBs/ -type d -name "v*" | tail -n1 )
-else
-    DB_DIR=${MARKERMAGU_DIR%src}DBs/${MM_DB}
-fi
 
-if [ ! -d ${DB_DIR} ] ; then
-    echo "can't find DB directory. should be a versioned directory here: ${MARKERMAGU_DIR%src}DBs/ "
+if [ ! -d ${MM_DB} ] ; then
+    echo "can't find DB directory that was specified: "
+    echo "${MM_DB}"
+    echo "If you haven't yet downloaded the database, please see instructions on https://github.com/cmmr/Marker-MAGu"
     echo "exiting"
     exit
 fi
 
-if [ ! -s ${DB_DIR}/Marker-MAGu_markerDB.fna ] ; then
-    echo "can't find marker database for pipeline. should be: ${DB_DIR}/Marker-MAGu_markerDB.fna"
+if [ ! -s ${MM_DB}/Marker-MAGu_markerDB.fna ] ; then
+    echo "can't find marker database for pipeline. should be: ${MM_DB}/Marker-MAGu_markerDB.fna"
     echo "exiting"
     exit
 fi
@@ -92,7 +88,7 @@ echo "Remove host/spikein seqs:     $FILTER_SEQS" >> ${OUT_DIR}/record/${SAMPLE}
 echo "Temp directory path:          $TEMP_DIR" >> ${OUT_DIR}/record/${SAMPLE}.arguments.txt
 echo "Keep temp files:              $KEEP" >> ${OUT_DIR}/record/${SAMPLE}.arguments.txt
 echo "Marker-MAGu script directory: $MARKERMAGU_DIR" >> ${OUT_DIR}/record/${SAMPLE}.arguments.txt
-echo "Marker-MAGu database used:    ${DB_DIR}/Marker-MAGu_markerDB.fna" >> ${OUT_DIR}/record/${SAMPLE}.arguments.txt
+echo "Marker-MAGu database used:    ${MM_DB}/Marker-MAGu_markerDB.fna" >> ${OUT_DIR}/record/${SAMPLE}.arguments.txt
 
 
 cat ${OUT_DIR}/record/${SAMPLE}.arguments.txt
@@ -156,7 +152,7 @@ if [ -s ${TEMP_DIR}/${SAMPLE}.MM_input.fastq ] ; then
     MDYT=$( date +"%m-%d-%y---%T" )
     echo "Time Update: running minimap2 on ${SAMPLE} @ $MDYT"
 
-    minimap2 -t $CPUS -ax sr ${DB_DIR}/Marker-MAGu_markerDB.fna --split-prefix ${TEMP_DIR}/Marker-MAGu_markerDB ${TEMP_DIR}/${SAMPLE}.MM_input.fastq > ${TEMP_DIR}/${SAMPLE}.markermagu.sam
+    minimap2 -t $CPUS -ax sr ${MM_DB}/Marker-MAGu_markerDB.fna --split-prefix ${TEMP_DIR}/Marker-MAGu_markerDB ${TEMP_DIR}/${SAMPLE}.MM_input.fastq > ${TEMP_DIR}/${SAMPLE}.markermagu.sam
 
     MDYT=$( date +"%m-%d-%y---%T" )
     echo "Time Update: running samtools on ${SAMPLE} @ $MDYT"
