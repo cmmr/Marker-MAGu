@@ -68,7 +68,7 @@ def markermagu():
 
     if args.DB == "default" and os.getenv('MARKERMAGU_DB') != None:
         args.DB = os.getenv('MARKERMAGU_DB')
-    else:
+    elif args.DB == "default":
         args.DB = markermagu_script_path.replace("src", "DBs/v1.0")
 
     # check if R script with libraries returns good exit code
