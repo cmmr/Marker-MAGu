@@ -4,6 +4,8 @@ import argparse
 import sys, os
 import subprocess
 
+__version__='0.3.0'
+
 def str2bool(v):
     if isinstance(v, bool):
        return v
@@ -21,8 +23,6 @@ markermagu_script_path = os.path.abspath(pathname)
 print(markermagu_script_path) 
 
 def markermagu():
-
-    __version__='0.2.0'
 
     parser = argparse.ArgumentParser(description='Marker-MAGu is a read mapping pipeline which uses marker genes to detect and measure bacteria, phages, archaea, and microeukaryotes. Version ' + str(__version__))
 
@@ -50,6 +50,9 @@ def markermagu():
                             help='True or False. Remove low-quality reads with fastp?')
     optional_args.add_argument('-f', "--filter_seqs", dest="FILTER_SEQS", type=str2bool, default='False',
                             help='True or False. Remove reads aligning to sequences at filter_seqs/filter_seqs.fna ?')
+    optional_args.add_argument("--filter_dir", 
+                            dest="FILTER_DIR", type=str, default='default',
+                            help='path to directory of sequences to filter. If not set, Marker-MAGu looks for environmental variable MARKERMAGU_FILTER. Then, if this variable is unset, it this is unset, DB path is assumed to be ' + markermagu_script_path.replace("src/markermagu", "filter_seqs"))
     optional_args.add_argument("--temp", 
                             dest="TEMP_DIR", type=str, default='default',
                             help='path of temporary directory. Default is {OUTPUT_DIR}/{SAMPLE}_temp/')
@@ -65,11 +68,18 @@ def markermagu():
     READS = ' '.join(map(str,args.READS))
 
     #print("version ", str(__version__))
-
+    ## DB path check/change
     if args.DB == "default" and os.getenv('MARKERMAGU_DB') != None:
         args.DB = os.getenv('MARKERMAGU_DB')
     elif args.DB == "default":
         args.DB = markermagu_script_path.replace("src", "DBs/v1.0")
+
+    # filter seq path check/change
+    if args.FILTER_DIR == "default" and os.getenv('MARKERMAGU_FILTER') != None:
+        args.FILTER_DIR = os.getenv('MARKERMAGU_FILTER')
+    elif args.FILTER_DIR == "default":
+        args.FILTER_DIR = markermagu_script_path.replace("src/markermargu", "filter_seqs")
+
 
     # check if R script with libraries returns good exit code
     completedProc = subprocess.run(['Rscript', str(markermagu_script_path) + '/check_R_libraries1.R'])
@@ -116,6 +126,6 @@ def markermagu():
         
     subprocess.call(['bash', str(markermagu_script_path) + '/Marker-MAGu_mapper.sh', 
                 str(READS), str(args.SAMPLE), str(args.CPU), str(args.OUTPUT_DIR), 
-                str(args.QUAL), str(args.FILTER_SEQS), str(args.TEMP_DIR), 
+                str(args.QUAL), str(args.FILTER_SEQS), str(args.FILTER_DIR), str(args.TEMP_DIR), 
                 str(args.KEEP), str(args.DB), str(__version__), str(markermagu_script_path)])
 

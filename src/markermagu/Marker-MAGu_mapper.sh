@@ -14,19 +14,21 @@ CPUS=$3
 OUT_DIR=$4
 QUAL=$5
 FILTER_SEQS=$6
-TEMP_DIR=$7
-KEEP=$8
-MM_DB=$9
-MM_VERSION=${10}
-MARKERMAGU_DIR=${11}
+FILTER_LOC=$7
+TEMP_DIR=$8
+KEEP=$9
+MM_DB=${10}
+MM_VERSION=${11}
+MARKERMAGU_DIR=${12}
 
 MDYT=$( date +"%m-%d-%y---%T" )
 echo "Time Update: Starting main bash mapper script for Marker-MAGu @ $MDYT"
 
 #arguments check
-if [ $# -ne 11 ] ; then 
-    echo "expected 11 arguments passed on the command line:"
-    echo "read file(s), sample ID, CPUs, output directory, trim by quality?, filter seqs?, temp directory path, keep temp?, db version, tool version, Marker-MAGu script directory"
+if [ $# -ne 12 ] ; then 
+    echo "expected 12 arguments passed on the command line:"
+    echo "read file(s), sample ID, CPUs, output directory, trim by quality?, filter seqs?, filter seqs directory, "
+    echo "temp directory path, keep temp?, db version, tool version, Marker-MAGu script directory"
     echo "exiting"
     exit
 fi
@@ -42,12 +44,12 @@ elif [ -d $TEMP_DIR ] ; then
 
 fi
 
-## check filter_seqs
-if [ "$FILTER_SEQS" == "True" ] && [ ! -s ${MARKERMAGU_DIR%src}filter_seqs/filter_seqs.fna ]; then
-    echo "-f True flag requires that this file exists and is not empty: "
-    echo "${MARKERMAGU_DIR%src}filter_seqs/filter_seqs.fna"
-    echo "exiting"
-    exit
+# check filter_seqs
+if [ "$FILTER_SEQS" == "True" ] && [ ! -s ${FILTER_LOC}/filter_seqs.fna ]; then
+	echo "-f True flag requires that this file exists and is not empty: "
+	echo "${FILTER_LOC}/filter_seqs.fna"
+	echo "exiting"
+	exit
 fi
 
 
@@ -86,6 +88,7 @@ echo "CPUs:                         $CPUS" >> ${OUT_DIR}/record/${SAMPLE}.argume
 echo "Output directory:             $OUT_DIR" >> ${OUT_DIR}/record/${SAMPLE}.arguments.txt
 echo "Trim for quality:             $QUAL" >> ${OUT_DIR}/record/${SAMPLE}.arguments.txt
 echo "Remove host/spikein seqs:     $FILTER_SEQS" >> ${OUT_DIR}/record/${SAMPLE}.arguments.txt
+echo "filter sequences path:        ${FILTER_LOC}/filter_seqs.fna" >> ${OUT_DIR}/record/${SAMPLE}.arguments.txt
 echo "Temp directory path:          $TEMP_DIR" >> ${OUT_DIR}/record/${SAMPLE}.arguments.txt
 echo "Keep temp files:              $KEEP" >> ${OUT_DIR}/record/${SAMPLE}.arguments.txt
 echo "Marker-MAGu script directory: $MARKERMAGU_DIR" >> ${OUT_DIR}/record/${SAMPLE}.arguments.txt
@@ -115,7 +118,7 @@ if [ "$QUAL" == "True" ] && [ "$FILTER_SEQS" == "True" ] ; then
     ##filter
     cat ${READS} | \
     fastp --stdin --stdout -w $CPUS -D 1 --html=${OUT_DIR}/record/${SAMPLE}.fastp.html --json=${OUT_DIR}/record/${SAMPLE}.fastp.json | \
-    minimap2 -t $CPUS -ax sr ${MARKERMAGU_DIR%src}filter_seqs/filter_seqs.fna - | \
+    minimap2 -t $CPUS -ax sr ${FILTER_LOC}/filter_seqs.fna - | \
     samtools fastq -n -f 4 - > ${TEMP_DIR}/${SAMPLE}.MM_input.fastq
 
 elif [ "$QUAL" == "True" ] ; then
@@ -132,7 +135,7 @@ elif [ "$FILTER_SEQS" == "True" ] ; then
 
     ##filter
     cat ${READS} | 
-    minimap2 -t $CPUS -ax sr ${MARKERMAGU_DIR%src}filter_seqs/filter_seqs.fna - | samtools fastq -n -f 4 - > ${TEMP_DIR}/${SAMPLE}.MM_input.fastq
+    minimap2 -t $CPUS -ax sr ${FILTER_LOC}/filter_seqs.fna - | samtools fastq -n -f 4 - > ${TEMP_DIR}/${SAMPLE}.MM_input.fastq
 
 else
     ## cat

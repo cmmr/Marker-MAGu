@@ -39,9 +39,13 @@ Note: if you can't or won't use `Conda` for environment management, you can chec
 
 `conda activate Marker-MAGu`
 
+5) Make a command line entry point
+
+`pip install .`
+
 5)  Download the database in the `Marker-MAGu` directory (\~9.6 GB when decompressed).
 
-`cd Marker-MAGu`
+`cd Marker-MAGu` *or `cd` to where you want the database to reside*
 
 `mkdir DBs && cd DBs`
 
@@ -53,9 +57,14 @@ should return `2e3a44c790765c55dcdc5e5d4521ac3a`
 
 `tar -xvf Marker-MAGu_markerDB_v1.0.tar.gz`
 
-You should now have the database at: `Marker-MAGu/DBs/v1.0/Marker-MAGu_markerDB.fna`
+With default instructions, you should now have the database at: `Marker-MAGu/DBs/v1.0/Marker-MAGu_markerDB.fna`
 
 `rm Marker-MAGu_markerDB_v1.0.tar.gz`
+
+6) Set the `Marker-MAGu` database directory variable **MARKERMAGU_DB**, e.g.:
+
+`conda env config vars set MARKERMAGU_DB=/path/to/DBs/v1.0`
+
 
 ## (OPTIONAL) Database for filtering out host reads and spike-ins
 
@@ -77,6 +86,10 @@ gunzip GCF_009914755.1_T2T-CHM13v2.0_genomic.fna.gz
 
 ## concatenate files
 cat GCF_000819615.1_ViralProj14015_genomic.fna GCF_009914755.1_T2T-CHM13v2.0_genomic.fna > filter_seqs.fna
+
+## set the MARKERMAGU_FILTER variable in your conda environment
+
+conda env config vars set MARKERMAGU_FILTER=/path/to/filter_seqs
 
 ## optionally delete separate files
 rm GCF_000819615.1_ViralProj14015_genomic.fna GCF_009914755.1_T2T-CHM13v2.0_genomic.fna
