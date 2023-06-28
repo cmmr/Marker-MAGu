@@ -39,6 +39,10 @@ Note: if you can't or won't use `Conda` for environment management, you can chec
 
 `conda activate Marker-MAGu`
 
+5) Make a command line entry point
+
+`pip install .`
+
 5)  Download the database in the `Marker-MAGu` directory (\~9.6 GB when decompressed).
 
 `cd Marker-MAGu` *or `cd` to where you want the database to reside*
