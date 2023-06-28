@@ -1,16 +1,36 @@
 [build-system]
-requires = ["setuptools"]
+requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "Marker-MAGu"
-version = "0.2.0"
+version = "0.3.0"
 authors = [
     {name = "Mike Tisza", email = "michael.tisza@gmail.com"}
 ]
-description = "Quantify phage and bacteria with marker genes"
+description = "Quantify phage and bacteria using marker genes"
 readme = "README.md"
+requires-python = ">=3.6"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "numpy",    
+    "biopython",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"markermagu" = ["*.R", "*.sh"]
 
 
 [project.scripts]
 markermagu = "markermagu:markermagu"
+
+[project.urls]
+"Homepage" = "https://github.com/cmmr/Marker-MAGu"
+"Bug Tracker" = "https://github.com/cmmr/Marker-MAGu/issues"
