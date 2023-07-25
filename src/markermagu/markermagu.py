@@ -6,6 +6,7 @@ import subprocess
 
 __version__='0.3.0'
 
+## function to allow boolean (true/false) input arguments
 def str2bool(v):
     if isinstance(v, bool):
        return v
@@ -16,12 +17,15 @@ def str2bool(v):
     else:
         raise argparse.ArgumentTypeError('Boolean value expected.')
     
-#pathname = os.path.dirname(sys.argv[0])
 pathname = os.path.dirname(__file__)
 
 markermagu_script_path = os.path.abspath(pathname)      
 print(markermagu_script_path) 
 
+## this is the main entry point function
+## users run `markermagu` on the command line with the arguments for argparse
+## these arguments are formatted, dependencies are checked
+## then arguments are fed to Marker-MAGu_mapper.sh
 def markermagu():
 
     parser = argparse.ArgumentParser(description='Marker-MAGu is a read mapping pipeline which uses marker genes to detect and measure bacteria, phages, archaea, and microeukaryotes. Version ' + str(__version__))
@@ -65,23 +69,23 @@ def markermagu():
 
     args = parser.parse_args()
 
+    ## joins read files together when provided with spaces in between
     READS = ' '.join(map(str,args.READS))
 
-    #print("version ", str(__version__))
     ## DB path check/change
     if args.DB == "default" and os.getenv('MARKERMAGU_DB') != None:
         args.DB = os.getenv('MARKERMAGU_DB')
     elif args.DB == "default":
         args.DB = markermagu_script_path.replace("src", "DBs/v1.0")
 
-    # filter seq path check/change
+    ## filter seq path check/change
     if args.FILTER_DIR == "default" and os.getenv('MARKERMAGU_FILTER') != None:
         args.FILTER_DIR = os.getenv('MARKERMAGU_FILTER')
     elif args.FILTER_DIR == "default":
         args.FILTER_DIR = markermagu_script_path.replace("src/markermargu", "filter_seqs")
 
 
-    # check if R script with libraries returns good exit code
+    ## check if R script with library check returns good exit code
     completedProc = subprocess.run(['Rscript', str(markermagu_script_path) + '/check_R_libraries1.R'])
 
     print(completedProc.returncode)
@@ -98,32 +102,24 @@ def markermagu():
         from distutils.spawn import find_executable
         return find_executable(name) is not None
 
-    if is_tool("coverm") :
-        print ("coverm found")
-    else:
+    if not is_tool("coverm") :
         print ("coverm is not found. Exiting.")
         quit()
-    if is_tool("minimap2") :
-        print ("minimap2 found")
-    else:
+    if not is_tool("minimap2") :
         print ("minimap2 is not found. Exiting.")
         quit()
-    if is_tool("samtools") :
-        print ("samtools found")
-    else:
+    if not is_tool("samtools") :
         print ("samtools is not found. Exiting.")
         quit()
-    if is_tool("seqkit") :
-        print ("seqkit found")
-    else:
+    if not is_tool("seqkit") :
         print ("seqkit is not found. Exiting.")
         quit()
-    if is_tool("fastp") :
-        print ("fastp found")
-    else:
+    if not is_tool("fastp") :
         print ("fastp is not found. Exiting.")
         quit()
         
+    ## this actually calls the main mapper bash script 
+    ## and provides all the arguments taken in this file
     subprocess.call(['bash', str(markermagu_script_path) + '/Marker-MAGu_mapper.sh', 
                 str(READS), str(args.SAMPLE), str(args.CPU), str(args.OUTPUT_DIR), 
                 str(args.QUAL), str(args.FILTER_SEQS), str(args.FILTER_DIR), str(args.TEMP_DIR), 

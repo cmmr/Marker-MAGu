@@ -44,7 +44,7 @@ elif [ -d $TEMP_DIR ] ; then
 
 fi
 
-# check filter_seqs
+## check filter_seqs
 if [ "$FILTER_SEQS" == "True" ] && [ ! -s ${FILTER_LOC}/filter_seqs.fna ]; then
 	echo "-f True flag requires that this file exists and is not empty: "
 	echo "${FILTER_LOC}/filter_seqs.fna"
@@ -52,7 +52,7 @@ if [ "$FILTER_SEQS" == "True" ] && [ ! -s ${FILTER_LOC}/filter_seqs.fna ]; then
 	exit
 fi
 
-
+## check Marker-MAGu database
 if [ ! -d ${MM_DB} ] ; then
     echo "can't find DB directory that was specified: "
     echo "${MM_DB}"
@@ -63,6 +63,7 @@ fi
 
 if [ ! -s ${MM_DB}/Marker-MAGu_markerDB.fna ] ; then
     echo "can't find marker database for pipeline. should be: ${MM_DB}/Marker-MAGu_markerDB.fna"
+    echo "If you haven't yet downloaded the database, please see instructions on https://github.com/cmmr/Marker-MAGu"
     echo "exiting"
     exit
 fi
@@ -79,7 +80,7 @@ if [ ! -d ${TEMP_DIR} ] ; then
     mkdir ${TEMP_DIR}
 fi
 
-## arguments file
+## arguments file, records each used argument
 date > ${OUT_DIR}/record/${SAMPLE}.arguments.txt
 echo "Marker-MAGu used arguments" >> ${OUT_DIR}/record/${SAMPLE}.arguments.txt
 echo "Sample name:                  $SAMPLE" >> ${OUT_DIR}/record/${SAMPLE}.arguments.txt
@@ -145,28 +146,32 @@ else
     cat ${READS} > ${TEMP_DIR}/${SAMPLE}.MM_input.fastq
 fi
 
-
+## Main mapping steps
 if [ -s ${TEMP_DIR}/${SAMPLE}.MM_input.fastq ] ; then
 
     MDYT=$( date +"%m-%d-%y---%T" )
     echo "Time Update: running seqkit stats on ${SAMPLE} @ $MDYT"
 
+    ## get stats e.g. total filtered reads
     seqkit stats -T ${TEMP_DIR}/${SAMPLE}.MM_input.fastq > ${OUT_DIR}/${SAMPLE}.MM_input.seq_stats.tsv
     FILTERED_READS=$( tail -n1 ${OUT_DIR}/${SAMPLE}.MM_input.seq_stats.tsv | cut -f4  )
 
     MDYT=$( date +"%m-%d-%y---%T" )
     echo "Time Update: running minimap2 on ${SAMPLE} @ $MDYT"
 
+    ## minimap2 in short read mode, using the split-prefix mode due to very large DB
     minimap2 -t $CPUS -ax sr ${MM_DB}/Marker-MAGu_markerDB.fna --split-prefix ${TEMP_DIR}/Marker-MAGu_markerDB ${TEMP_DIR}/${SAMPLE}.MM_input.fastq > ${TEMP_DIR}/${SAMPLE}.markermagu.sam
 
     MDYT=$( date +"%m-%d-%y---%T" )
     echo "Time Update: running samtools on ${SAMPLE} @ $MDYT"
 
+    ## samtools view -bSq filters aligned reads so ONLY reads aligning uniquely get kept
     samtools view -@ $CPUS -bSq 1 ${TEMP_DIR}/${SAMPLE}.markermagu.sam | samtools sort -@ $CPUS -o ${TEMP_DIR}/${SAMPLE}.markermagu.sort.bam
 
     MDYT=$( date +"%m-%d-%y---%T" )
     echo "Time Update: running coverm on ${SAMPLE} @ $MDYT"
 
+    ## coverm summarizes the read alignments at the contig (in this case, marker gene) level
     coverm contig --bam-files ${TEMP_DIR}/${SAMPLE}.markermagu.sort.bam --min-read-percent-identity 90 --min-read-aligned-percent 50 -m length covered_bases count -o ${TEMP_DIR}/${SAMPLE}.marker-magu.unique_alignment.coverm.tsv -t $CPUS
 
     MDYT=$( date +"%m-%d-%y---%T" )
