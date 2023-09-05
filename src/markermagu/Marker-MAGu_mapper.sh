@@ -129,7 +129,7 @@ elif [ "$QUAL" == "True" ] ; then
 
     ##trim
     cat ${READS} | \
-    fastp --stdin -o ${TEMP_DIR}/${SAMPLE}.MM_input.fastq -w $CPUS -D 1|\
+    fastp --stdin -o ${TEMP_DIR}/${SAMPLE}.MM_input.fastq -w $CPUS -D 1\
       --html=${OUT_DIR}/record/${SAMPLE}.fastp.html --json=${OUT_DIR}/record/${SAMPLE}.fastp.html
 
 elif [ "$FILTER_SEQS" == "True" ] ; then
@@ -179,14 +179,14 @@ if [ -s ${TEMP_DIR}/${SAMPLE}.MM_input.fastq ] ; then
     echo "Time Update: running coverm on ${SAMPLE} @ $MDYT"
 
     ## coverm summarizes the read alignments at the contig (in this case, marker gene) level
-    coverm contig --bam-files ${TEMP_DIR}/${SAMPLE}.markermagu.sort.bam --min-read-percent-identity 90|\
-      --min-read-aligned-percent 50 -m length covered_bases count|\
+    coverm contig --bam-files ${TEMP_DIR}/${SAMPLE}.markermagu.sort.bam --min-read-percent-identity 90\
+      --min-read-aligned-percent 50 -m length covered_bases count\
       -o ${TEMP_DIR}/${SAMPLE}.marker-magu.unique_alignment.coverm.tsv -t $CPUS
 
     MDYT=$( date +"%m-%d-%y---%T" )
     echo "Time Update: running treshold enforcer/abundance calculator Rscript on ${SAMPLE} @ $MDYT"
 
-    Rscript ${MARKERMAGU_DIR}/make_abundance_table.R ${TEMP_DIR}/${SAMPLE}.marker-magu.unique_alignment.coverm.tsv|\
+    Rscript ${MARKERMAGU_DIR}/make_abundance_table.R ${TEMP_DIR}/${SAMPLE}.marker-magu.unique_alignment.coverm.tsv\
       $FILTERED_READS ${OUT_DIR}/${SAMPLE} ${SAMPLE}
 
 else
