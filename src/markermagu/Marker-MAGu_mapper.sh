@@ -27,10 +27,10 @@ MDYT=$( date +"%m-%d-%y---%T" )
 echo "Time Update: Starting main bash mapper script for Marker-MAGu @ $MDYT"
 
 #arguments check
-if [ $# -ne 12 ] ; then 
+if [ $# -ne 13 ] ; then 
     echo "expected 12 arguments passed on the command line:"
     echo "read file(s), sample ID, CPUs, output directory, trim by quality?, filter seqs?, filter seqs directory, "
-    echo "temp directory path, keep temp?, db version, tool version, Marker-MAGu script directory"
+    echo "temp directory path, keep temp?, db version, tool version, Marker-MAGu script directory, detection settting"
     echo "exiting"
     exit
 fi
