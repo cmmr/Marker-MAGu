@@ -21,8 +21,13 @@ MM_DB=${10}
 MM_VERSION=${11}
 MARKERMAGU_DIR=${12}
 
+Color_Off='\033[0m'       # Text Reset
+# Bold
+BBlack='\033[1;30m'       # Black
+BRed='\033[1;31m'         # Red
+
 MDYT=$( date +"%m-%d-%y---%T" )
-echo "Time Update: Starting main bash mapper script for Marker-MAGu @ $MDYT"
+echo "${BRed}Time Update: Starting main bash mapper script for Marker-MAGu @ $MDYT ${Color_Off}"
 
 #arguments check
 if [ $# -ne 12 ] ; then 
@@ -128,7 +133,8 @@ elif [ "$QUAL" == "True" ] ; then
 
     ##trim
     cat ${READS} | \
-    fastp --stdin -o ${TEMP_DIR}/${SAMPLE}.MM_input.fastq -w $CPUS -D 1 --html=${OUT_DIR}/record/${SAMPLE}.fastp.html --json=${OUT_DIR}/record/${SAMPLE}.fastp.html
+    fastp --stdin -o ${TEMP_DIR}/${SAMPLE}.MM_input.fastq -w $CPUS -D 1|\
+      --html=${OUT_DIR}/record/${SAMPLE}.fastp.html --json=${OUT_DIR}/record/${SAMPLE}.fastp.html
 
 elif [ "$FILTER_SEQS" == "True" ] ; then
     MDYT=$( date +"%m-%d-%y---%T" )
@@ -157,27 +163,35 @@ if [ -s ${TEMP_DIR}/${SAMPLE}.MM_input.fastq ] ; then
     FILTERED_READS=$( tail -n1 ${OUT_DIR}/${SAMPLE}.MM_input.seq_stats.tsv | cut -f4  )
 
     MDYT=$( date +"%m-%d-%y---%T" )
-    echo "Time Update: running minimap2 on ${SAMPLE} @ $MDYT"
+    echo "Time Update: running minimap2 and samtools on ${SAMPLE} @ $MDYT"
+
+    minimap2 -t $CPUS -ax sr ${MM_DB}/Marker-MAGu_markerDB.fna --split-prefix|\
+      ${TEMP_DIR}/Marker-MAGu_markerDB ${TEMP_DIR}/${SAMPLE}.MM_input.fastq |\
+      samtools view -@ $CPUS -bSq 1 - |\
+      samtools sort -@ $CPUS -o ${TEMP_DIR}/${SAMPLE}.markermagu.sort.bam
 
     ## minimap2 in short read mode, using the split-prefix mode due to very large DB
-    minimap2 -t $CPUS -ax sr ${MM_DB}/Marker-MAGu_markerDB.fna --split-prefix ${TEMP_DIR}/Marker-MAGu_markerDB ${TEMP_DIR}/${SAMPLE}.MM_input.fastq > ${TEMP_DIR}/${SAMPLE}.markermagu.sam
+    #minimap2 -t $CPUS -ax sr ${MM_DB}/Marker-MAGu_markerDB.fna --split-prefix|\
+    #  ${TEMP_DIR}/Marker-MAGu_markerDB ${TEMP_DIR}/${SAMPLE}.MM_input.fastq > ${TEMP_DIR}/${SAMPLE}.markermagu.sam
 
-    MDYT=$( date +"%m-%d-%y---%T" )
-    echo "Time Update: running samtools on ${SAMPLE} @ $MDYT"
 
     ## samtools view -bSq filters aligned reads so ONLY reads aligning uniquely get kept
-    samtools view -@ $CPUS -bSq 1 ${TEMP_DIR}/${SAMPLE}.markermagu.sam | samtools sort -@ $CPUS -o ${TEMP_DIR}/${SAMPLE}.markermagu.sort.bam
+    #samtools view -@ $CPUS -bSq 1 ${TEMP_DIR}/${SAMPLE}.markermagu.sam |\
+    #  samtools sort -@ $CPUS -o ${TEMP_DIR}/${SAMPLE}.markermagu.sort.bam
 
     MDYT=$( date +"%m-%d-%y---%T" )
     echo "Time Update: running coverm on ${SAMPLE} @ $MDYT"
 
     ## coverm summarizes the read alignments at the contig (in this case, marker gene) level
-    coverm contig --bam-files ${TEMP_DIR}/${SAMPLE}.markermagu.sort.bam --min-read-percent-identity 90 --min-read-aligned-percent 50 -m length covered_bases count -o ${TEMP_DIR}/${SAMPLE}.marker-magu.unique_alignment.coverm.tsv -t $CPUS
+    coverm contig --bam-files ${TEMP_DIR}/${SAMPLE}.markermagu.sort.bam --min-read-percent-identity 90|\
+      --min-read-aligned-percent 50 -m length covered_bases count|\
+      -o ${TEMP_DIR}/${SAMPLE}.marker-magu.unique_alignment.coverm.tsv -t $CPUS
 
     MDYT=$( date +"%m-%d-%y---%T" )
     echo "Time Update: running treshold enforcer/abundance calculator Rscript on ${SAMPLE} @ $MDYT"
 
-    Rscript ${MARKERMAGU_DIR}/make_abundance_table.R ${TEMP_DIR}/${SAMPLE}.marker-magu.unique_alignment.coverm.tsv $FILTERED_READS ${OUT_DIR}/${SAMPLE} ${SAMPLE}
+    Rscript ${MARKERMAGU_DIR}/make_abundance_table.R ${TEMP_DIR}/${SAMPLE}.marker-magu.unique_alignment.coverm.tsv|\
+      $FILTERED_READS ${OUT_DIR}/${SAMPLE} ${SAMPLE}
 
 else
     echo "${TEMP_DIR}/${SAMPLE}.MM_input.fastq not found"

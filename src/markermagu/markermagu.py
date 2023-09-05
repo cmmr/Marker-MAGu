@@ -5,6 +5,8 @@ import sys, os
 import subprocess
 import logging
 from subprocess import Popen, PIPE, STDOUT
+import time
+from datetime import timedelta
 
 __version__='0.4.0'
 
@@ -28,6 +30,9 @@ markermagu_script_path = os.path.abspath(pathname)
 ## these arguments are formatted, dependencies are checked
 ## then arguments are fed to Marker-MAGu_mapper.sh
 def markermagu():
+    mm_starttime = time.time() 
+
+    Def_CPUs = os.cpu_count()
 
     parser = argparse.ArgumentParser(description='Marker-MAGu is a read mapping pipeline which uses marker genes to detect and measure bacteria, phages, archaea, and microeukaryotes. Version ' + str(__version__))
 
@@ -158,6 +163,14 @@ def markermagu():
     with process.stdout:
         log_subprocess_output(process.stdout)
     exitcode = process.wait() 
+
+    mm_endtime = time.time()
+
+    time_taken = mm_endtime - mm_starttime
+
+    time_taken = round(time_taken, 2) 
+
+    logging.info("This Marker-MAGu run took: " + str(timedelta(seconds=time_taken)))
 
 if __name__ == "__main__":
     markermagu()
