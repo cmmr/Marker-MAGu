@@ -97,6 +97,7 @@ echo "Keep temp files:              $KEEP" >> ${OUT_DIR}/record/${SAMPLE}.argume
 echo "Marker-MAGu script directory: $MARKERMAGU_DIR" >> ${OUT_DIR}/record/${SAMPLE}.arguments.txt
 echo "Marker-MAGu tool version:     $MM_VERSION" >> ${OUT_DIR}/record/${SAMPLE}.arguments.txt
 echo "Marker-MAGu database used:    ${MM_DB}/Marker-MAGu_markerDB.fna" >> ${OUT_DIR}/record/${SAMPLE}.arguments.txt
+echo "Detection setting:            $DETECTION" >> ${OUT_DIR}/record/${SAMPLE}.arguments.txt
 
 
 cat ${OUT_DIR}/record/${SAMPLE}.arguments.txt
