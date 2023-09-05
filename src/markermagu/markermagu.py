@@ -44,9 +44,6 @@ def markermagu():
     required_args.add_argument("-s", "--sample", 
                             dest="SAMPLE", type=str, required=True, 
                             help='Sample name. No space characters, please.')
-    required_args.add_argument("-t", "--cpu", 
-                            dest="CPU", type=int, required=True, 
-                            help='Example: 32 -- Number of CPUs available for Marker-MAGu. ')
     required_args.add_argument("-o", "--output_dir", 
                             dest="OUTPUT_DIR", type=str, required=True, 
                             help='Output directory name. Will be created if it does not exist. Can be shared with other samples. No space characters, please. ')
@@ -56,6 +53,9 @@ def markermagu():
     optional_args = parser.add_argument_group(' OPTIONAL ARGUMENTS for Marker-MAGu.')
 
     optional_args.add_argument('--version', action='version', version=str(__version__))
+    optional_args.add_argument("-t", "--cpu", 
+                            dest="CPU", type=int, default=Def_CPUs, 
+                            help=f"Default: {Def_CPUs} -- Example: 32 -- Number of CPUs available for Marker-MAGu.")
     optional_args.add_argument('-q', "--qual", dest="QUAL", type=str2bool, default='False',
                             help='True or False. Remove low-quality reads with fastp?')
     optional_args.add_argument('-f', "--filter_seqs", dest="FILTER_SEQS", type=str2bool, default='False',
@@ -72,7 +72,13 @@ def markermagu():
     optional_args.add_argument("--db", 
                             dest="DB", type=str, default='default',
                             help='DB path. If not set, Marker-MAGu looks for environmental variable MARKERMAGU_DB. Then, if this variable is unset, it this is unset, DB path is assumed to be ' + markermagu_script_path.replace("src", "DBs/v1.0"))
-
+    optional_args.add_argument("--detection", 
+                            dest="DETECTION", type=str, choices=['default', 'relaxed'], default='default',
+                            help='Stringency of SGB detection. \"default\" setting requires >=75 percent of \
+                                marker genes with at least 1 read mapped. \"relaxed\" setting requires \
+                                >= 33.3 percent of marker \
+                                genes with at least 1 read mapped AND at least 3 marker genes detected.')
+    
     args = parser.parse_args()
 
     #### define logger #####
@@ -157,8 +163,8 @@ def markermagu():
     process = Popen(['bash', str(markermagu_script_path) + '/Marker-MAGu_mapper.sh', 
                 str(READS), str(args.SAMPLE), str(args.CPU), str(args.OUTPUT_DIR), 
                 str(args.QUAL), str(args.FILTER_SEQS), str(args.FILTER_DIR), str(args.TEMP_DIR), 
-                str(args.KEEP), str(args.DB), str(__version__), str(markermagu_script_path)],
-                stdout=PIPE, stderr=STDOUT)
+                str(args.KEEP), str(args.DB), str(__version__), str(markermagu_script_path), 
+                str(args.DETECTION)], stdout=PIPE, stderr=STDOUT)
 
     with process.stdout:
         log_subprocess_output(process.stdout)

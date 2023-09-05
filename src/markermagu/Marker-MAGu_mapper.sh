@@ -20,6 +20,7 @@ KEEP=$9
 MM_DB=${10}
 MM_VERSION=${11}
 MARKERMAGU_DIR=${12}
+DETECTION=${13}
 
 
 MDYT=$( date +"%m-%d-%y---%T" )
@@ -187,7 +188,7 @@ if [ -s ${TEMP_DIR}/${SAMPLE}.MM_input.fastq ] ; then
     echo "Time Update: running treshold enforcer/abundance calculator Rscript on ${SAMPLE} @ $MDYT"
 
     Rscript ${MARKERMAGU_DIR}/make_abundance_table.R ${TEMP_DIR}/${SAMPLE}.marker-magu.unique_alignment.coverm.tsv\
-      $FILTERED_READS ${OUT_DIR}/${SAMPLE} ${SAMPLE}
+      $FILTERED_READS ${OUT_DIR}/${SAMPLE} ${SAMPLE} ${DETECTION}
 
 else
     echo "${TEMP_DIR}/${SAMPLE}.MM_input.fastq not found"
