@@ -21,13 +21,9 @@ MM_DB=${10}
 MM_VERSION=${11}
 MARKERMAGU_DIR=${12}
 
-Color_Off='\033[0m'       # Text Reset
-# Bold
-BBlack='\033[1;30m'       # Black
-BRed='\033[1;31m'         # Red
 
 MDYT=$( date +"%m-%d-%y---%T" )
-echo "${BRed}Time Update: Starting main bash mapper script for Marker-MAGu @ $MDYT ${Color_Off}"
+echo "Time Update: Starting main bash mapper script for Marker-MAGu @ $MDYT"
 
 #arguments check
 if [ $# -ne 12 ] ; then 
@@ -165,7 +161,7 @@ if [ -s ${TEMP_DIR}/${SAMPLE}.MM_input.fastq ] ; then
     MDYT=$( date +"%m-%d-%y---%T" )
     echo "Time Update: running minimap2 and samtools on ${SAMPLE} @ $MDYT"
 
-    minimap2 -t $CPUS -ax sr ${MM_DB}/Marker-MAGu_markerDB.fna --split-prefix|\
+    minimap2 -t $CPUS -ax sr ${MM_DB}/Marker-MAGu_markerDB.fna --split-prefix\
       ${TEMP_DIR}/Marker-MAGu_markerDB ${TEMP_DIR}/${SAMPLE}.MM_input.fastq |\
       samtools view -@ $CPUS -bSq 1 - |\
       samtools sort -@ $CPUS -o ${TEMP_DIR}/${SAMPLE}.markermagu.sort.bam
