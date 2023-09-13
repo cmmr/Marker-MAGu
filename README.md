@@ -2,7 +2,7 @@
 
 Trans-Kingdom Marker Gene Pipeline for Taxonomic Profiling of Human Metagenomes
 
-If you want to detect and quantify phages, bacteria, archaea, and/or microeukaryotes in whole genome shotgun reads from human-derived samples, `Marker-MAGu` is the tool for you.
+If you want to detect and quantify phages, bacteria, and archaea in whole genome shotgun reads from human-derived samples, `Marker-MAGu` is the tool for you.
 
 Basically, this tool uses the strategy (marker gene detection) and database (marker gene sequences) from [Metaphlan4](https://github.com/biobakery/MetaPhlAn), then:
 
@@ -12,6 +12,8 @@ Basically, this tool uses the strategy (marker gene detection) and database (mar
 *The relative abundance of bacteria/archaea/microeukaryotes with be nearly identical to `Metaphlan4`, BUT `Marker-MAGu` is a bit less sensitive and a bit more specific. `Marker-MAGu` uses a stricter threshold (75% of marker genes) than `Metaphlan4` (33% of marker genes by default), so this is expected.*
 
 Also, as in `Metaphlan4` **SGBs**, or **S**pecies-level **G**enome **B**ins are genomically-distinct species.
+
+<img src="schematic/marker_magu1.png" width="150"/>
 
 ## Schematic
 
@@ -39,32 +41,31 @@ Note: if you can't or won't use `Conda` for environment management, you can chec
 
 `conda activate Marker-MAGu`
 
-5) Make a command line entry point
+5)  Make a command line entry point
 
 `pip install .`
 
-5)  Download the database in the `Marker-MAGu` directory (\~9.6 GB when decompressed).
+5)  Download the database (\~9.6 GB when decompressed).
 
 `cd Marker-MAGu` *or `cd` to where you want the database to reside*
 
 `mkdir DBs && cd DBs`
 
-`wget https://zenodo.org/record/7975097/files/Marker-MAGu_markerDB_v1.0.tar.gz`
+`wget https://zenodo.org/record/8342581/files/Marker-MAGu_markerDB_v1.1.tar.gz`
 
 `md5sum`
 
-should return `2e3a44c790765c55dcdc5e5d4521ac3a`
+should return `e0947cb1d4a3df09829e98627021e0dd`
 
-`tar -xvf Marker-MAGu_markerDB_v1.0.tar.gz`
+`tar -xvf Marker-MAGu_markerDB_v1.1.tar.gz`
 
-With default instructions, you should now have the database at: `Marker-MAGu/DBs/v1.0/Marker-MAGu_markerDB.fna`
+With default instructions, you should now have the database at: `/path/to/DBs/v1.1/Marker-MAGu_markerDB.fna`
 
-`rm Marker-MAGu_markerDB_v1.0.tar.gz`
+`rm Marker-MAGu_markerDB_v1.1.tar.gz`
 
-6) Set the `Marker-MAGu` database directory variable **MARKERMAGU_DB**, e.g.:
+6)  Set the `Marker-MAGu` database directory variable **MARKERMAGU_DB**, e.g.:
 
 `conda env config vars set MARKERMAGU_DB=/path/to/DBs/v1.0`
-
 
 ## (OPTIONAL) Database for filtering out host reads and spike-ins
 
@@ -122,25 +123,31 @@ Individual samples can be run with the python script. E.g.:
 **Basic run with 1 .fastq file:**
 
 ```         
-markermagu -r /path/to/reads/myreads.fastq -s sample_ABC -t 16 -o myproject_MM1
+markermagu -r /path/to/reads/myreads.fastq -s sample_ABC -o myproject_MM1
 ```
 
 **Using multiple input .fastq files (`Marker-MAGu` doesn't used paired-end info)**
 
 ```         
-markermagu -r /path/to/reads/myreads1.fastq /path/to/reads/myreads2.fastq -s sample_ABC -t 16 -o myproject_MM1
+markermagu -r /path/to/reads/myreads1.fastq /path/to/reads/myreads2.fastq -s sample_ABC -o myproject_MM1
 ```
 
 **Using multiple input .fastq files with wildcard**
 
 ```         
-markermagu -r /path/to/reads/*.fastq -s sample_ABC -t 16 -o myproject_MM1
+markermagu -r /path/to/reads/*.fastq -s sample_ABC -o myproject_MM1
 ```
 
 **With pre-filtering steps:**
 
 ```         
-markermagu -r /path/to/reads/myreads.fastq -s sample_ABC -t 16 -o myproject_MM1 -q True -f True
+markermagu -r /path/to/reads/myreads.fastq -s sample_ABC -o myproject_MM1 -q True -f True
+```
+
+**With relaxed detection**
+
+```         
+markermagu -r /path/to/reads/myreads.fastq -s sample_ABC -o myproject_MM1 --detection relaxed
 ```
 
 **Help menu**
@@ -196,11 +203,23 @@ wide_dt <- long_dt %>%
               values_from = rel_abundance, values_fill = 0)
 ```
 
+### Source for virus taxonomy
+
+| Level   | Source                      |
+|---------|-----------------------------|
+| Kingdom | 'Virus' for all             |
+| Phylum  | Genomad                     |
+| Class   | Genomad                     |
+| Order   | Genomad                     |
+| Family  | Genomad                     |
+| Genus   | Vcontact2 (arbitrary names) |
+| Species | ANIclust (arbitrary names)  |
+
 ### Other notes
 
 Relative abundance values from each sample will add up to 1, so there is no "unknown fraction estimate"
 
-Currently, `Marker-MAGu` only profiles phages with 4 or more unique marker genes, so small, ssDNA phages such as microviruses and inoviruses are unlikely to be detectable. I'm working on it.
+Currently, `Marker-MAGu` only profiles phages with 4 or more unique marker genes, so small, ssDNA phages such as microviruses and inoviruses may be undetectable. I'm working on it.
 
 Should any issues arise, please leave an issue in this GitHub Repo.
 
@@ -247,6 +266,7 @@ blast v2.9.0
 **1) call genes**
 
 make sure variable is set for your file `MYSEQS="my_viruses1"`
+
 ```         
 prodigal -a ${MYSEQS}.prot.faa -d ${MYSEQS}.genes.fna -i ${MYSEQS}.fna -p meta -q
 ```
@@ -289,13 +309,13 @@ seqkit grep -j 16 -f ${MYSEQS}.hallmark_gene_list.txt ${MYSEQS}.prot.faa > ${MYS
 
 This command will only keep genomes with 4 or more hallmark genes as is recommended for `Marker-MAGu`. See awk expression `if ($1>=4)`.
 
-```
+```         
 sed 's/[^_]*$//' ${MYSEQS}.hallmark_gene_list.txt | sort | uniq -c | awk '{if ($1>=4) {print $2}}' > ${MYSEQS}.marker_genomes_list.txt
 ```
 
 **2) Make fastas of genome-specific marker genes**
 
-```
+```         
 mkdir indiv_genomes
 
 cat ${MYSEQS}.marker_genomes_list.txt | xargs -n 1 -I {} -P 16 seqkit grep -j 1 --quiet -r -p "{}" ${MYSEQS}.hallmark_genes.nucl.fna -o indiv_genomes/{}_hmg.fna
@@ -303,14 +323,14 @@ cat ${MYSEQS}.marker_genomes_list.txt | xargs -n 1 -I {} -P 16 seqkit grep -j 1 
 
 **3) Concatenate hallmark genes for each genome**
 
-```
+```         
 HMGS=$( find indiv_genomes/ -type f -name "*__hmg.fna" | sed 's/\.fna//g' )
 if [ -n "$HMGS" ] ; then
-	for HM in $HMGS ; do 
-		bioawk -v genq="${HM#indiv_genomes/}" -c fastx '{if (NR == 1) {print ">"genq ; print $seq} else {print $seq }}' ${HM}.fna > ${HM}.concat.fna ; 
-	done
+    for HM in $HMGS ; do 
+        bioawk -v genq="${HM#indiv_genomes/}" -c fastx '{if (NR == 1) {print ">"genq ; print $seq} else {print $seq }}' ${HM}.fna > ${HM}.concat.fna ; 
+    done
 else
-	echo "hallmark gene files for each genome NOT found"
+    echo "hallmark gene files for each genome NOT found"
 fi
 
 cat indiv_genomes/*_hmg.concat.fna > ${MYSEQS}.hallmark_genes.nucl.concat.fna
@@ -320,10 +340,9 @@ cat indiv_genomes/*_hmg.concat.fna > ${MYSEQS}.hallmark_genes.nucl.concat.fna
 
 NOTE: If all-vs-all BLASTN only returns self-alignments, the `anicalc.py` script will return an error. In this case, just use the `${MYSEQS}.marker_genomes_list.txt` file instead of the `${MYSEQS}.hallmark_genes.nucl.concat.exemplars1.txt` for step 3).
 
-
 **1) BLASTN**
 
-```
+```         
 mkdir blast_DBs
 
 makeblastdb -in ${MYSEQS}.hallmark_genes.nucl.concat.fna -dbtype nucl -out blast_DBs/${MYSEQS}.hallmark_genes.nucl.concat
@@ -333,7 +352,7 @@ blastn -query ${MYSEQS}.hallmark_genes.nucl.concat.fna -db blast_DBs/${MYSEQS}.h
 
 **2) anicalc/aniclust to find redundant sequences**
 
-```
+```         
 python /path/to/Marker-MAGu/src/utils/anicalc.py -i ${MYSEQS}.hallmark_genes.nucl.concat.blastn.tsv -o ${MYSEQS}.hallmark_genes.nucl.concat.anicalc.tsv
 
 python /path/to/Marker-MAGu/src/utils/aniclust.py --fna ${MYSEQS}.hallmark_genes.nucl.concat.fna --ani ${MYSEQS}.hallmark_genes.nucl.concat.anicalc.tsv --out ${MYSEQS}.hallmark_genes.nucl.concat.aniclust.ANI95_TCOV85.tsv --min_ani 95 --min_tcov 85 --min_qcov 0
@@ -343,7 +362,7 @@ cut -f1 ${MYSEQS}.hallmark_genes.nucl.concat.aniclust.ANI95_TCOV85.tsv > ${MYSEQ
 
 **3) Retreive all the INDIVIDUAL hallmark genes for exemplars**
 
-```
+```         
 bioawk -c fastx '{print $name, $seq}' ${MYSEQS}.hallmark_genes.nucl.fna | grep -F -f ${MYSEQS}.hallmark_genes.nucl.concat.exemplars1.txt | awk '{OFS=FS="\t"}{print ">" $1 ; print $2}' > ${MYSEQS}.hallmark_genes.nucl.exemplars1.fna
 ```
 
@@ -351,19 +370,19 @@ bioawk -c fastx '{print $name, $seq}' ${MYSEQS}.hallmark_genes.nucl.fna | grep -
 
 **1) Format marker genes for `Marker-MAGu`**
 
-This is kind of an unrefined piece of code as it does not assign meaningful taxonomical assignments at any level except species ("s__"), which it merely assigns the sequence name. However, it does fulfill the requirements for `Marker-MAGu`, which is to format the header as:
+This is kind of an unrefined piece of code as it does not assign meaningful taxonomical assignments at any level except species ("s\_\_"), which it merely assigns the sequence name. However, it does fulfill the requirements for `Marker-MAGu`, which is to format the header as:
 
 *gene_name;hierarchical_taxonomy;genome_of_origin_name*
 
-```
+```         
 sed 's/[^_]*$/@_&/ ; s/^@_//g' ${MYSEQS}.hallmark_genes.nucl.exemplars1.fna | bioawk -c fastx '{ split($name, a, "_@") ; print ">"a[1]a[2]";k__Viruses|p__Unclassified_viruses|c__Unclassified_viruses|o__Unclassified_viruses|f__Unclassified_viruses|g__Unclassified_viruses|s__vOTU_"a[1]";"a[1] ; print $seq}' > ${MYSEQS}.hallmark_genes.nucl.exemplars1.fmt.fna
 ```
 
 If you want to assign more complex taxonomy to your sequences based on some other tool, please make an Issue and I can upload some additional scripts to the repo to facilitate this.
 
-**2) Concatenate your formatted marker genes to the existing `Marker-MAGu` database** 
+**2) Concatenate your formatted marker genes to the existing `Marker-MAGu` database**
 
-```
+```         
 cd Marker-MAGu/DBs
 
 mkdir v_${MYSEQS}
@@ -372,7 +391,6 @@ cat v1.0/Marker-MAGu_markerDB.fna /path/to/${MYSEQS}.hallmark_genes.nucl.exempla
 ```
 
 That's it. Remember to specify the updated database when running `Marker-MAGu`. E.g. `--db v_my_viruses1`
-
 
 ## Citation
 
