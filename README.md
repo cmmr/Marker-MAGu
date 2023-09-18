@@ -1,6 +1,7 @@
 # Marker-MAGu
 
 [![Anaconda-Server Badge](https://anaconda.org/bioconda/marker-magu/badges/version.svg)](https://anaconda.org/bioconda/marker-magu) [![Anaconda-Server Badge](https://anaconda.org/bioconda/marker-magu/badges/downloads.svg)](https://anaconda.org/bioconda/marker-magu)
+
 Trans-Kingdom Marker Gene Pipeline for Taxonomic Profiling of Human Metagenomes
 
 If you want to detect and quantify phages, bacteria, and archaea in whole genome shotgun reads from human-derived samples, `Marker-MAGu` is the tool for you.
@@ -10,7 +11,7 @@ Basically, this tool uses the strategy (marker gene detection) and database (mar
 1)  adds marker genes from 10s of thousands of phages derived from human metagenomes
 2)  tweaks the thresholds so that phages and bacteria are detected with similar specificity and sensitivity
 
-*The relative abundance of bacteria/archaea with be nearly identical to `Metaphlan4` using default settings if `Marker-MAGu` is run with `--detection relaxed` (33% of marker genes required for detection). With `Marker-MAGu --detection default` output will be a bit less sensitive and a bit more specific, using a stricter threshold (75% of marker genes required for detection). Changes in settings and databases will likely change the output*
+*The relative abundance of bacteria/archaea with be highly similar to `Metaphlan4`(default settings) if `Marker-MAGu` is run with `--detection relaxed` (33% of marker genes required for detection). With `Marker-MAGu --detection default` output will be a bit less sensitive and a bit more specific, using a stricter threshold (75% of marker genes required for detection). Changes in settings and databases will likely change the output*
 
 Also, as in `Metaphlan4` **SGBs**, or **S**pecies-level **G**enome **B**ins are genomically-distinct species.
 
@@ -40,7 +41,7 @@ Logo by [Adrien Assie](https://github.com/aassie)
 
 `wget https://zenodo.org/record/8342581/files/Marker-MAGu_markerDB_v1.1.tar.gz`
 
-`md5sum`
+`md5sum Marker-MAGu_markerDB_v1.1.tar.gz`
 
 should return `e0947cb1d4a3df09829e98627021e0dd`
 
@@ -111,7 +112,7 @@ Remember to set `-f True` to run the filtering step.
 
 # Running the tool
 
-**I have only tested this on Linux and I doubt it would work on MacOS or Windows**
+**Linux-only for the conda environment**
 
 You might run this as part of a bash script, do your own upstream read processing, etc, but these are the basic instructions.
 
@@ -163,6 +164,57 @@ markermagu -r /path/to/reads/myreads.fastq -s sample_ABC -o myproject_MM1 --dete
 
 ```         
 markermagu -h
+```
+
+## Full help menu
+
+```
+usage: markermagu [-h] -r READS [READS ...] -s SAMPLE -o OUTPUT_DIR [--version] [-t CPU] [-q QUAL]
+                  [-f FILTER_SEQS] [--filter_dir FILTER_DIR] [--temp TEMP_DIR] [--keep KEEP] [--db DB]
+                  [--detection {default,relaxed}]
+
+Marker-MAGu is a read mapping pipeline which uses marker genes to detect and measure bacteria, phages,
+archaea, and microeukaryotes. Version 0.4.0
+
+options:
+  -h, --help            show this help message and exit
+
+ REQUIRED ARGUMENTS for Marker-MAGu :
+  -r READS [READS ...], --reads READS [READS ...]
+                        read file(s) in .fastq format. You can specify more than one separated by a
+                        space
+  -s SAMPLE, --sample SAMPLE
+                        Sample name. No space characters, please.
+  -o OUTPUT_DIR, --output_dir OUTPUT_DIR
+                        Output directory name. Will be created if it does not exist. Can be shared
+                        with other samples. No space characters, please.
+
+ OPTIONAL ARGUMENTS for Marker-MAGu.:
+  --version             show program's version number and exit
+  -t CPU, --cpu CPU     Default: 48 -- Example: 32 -- Number of CPUs available for Marker-MAGu.
+  -q QUAL, --qual QUAL  True or False. Remove low-quality reads with fastp?
+  -f FILTER_SEQS, --filter_seqs FILTER_SEQS
+                        True or False. Remove reads aligning to sequences at
+                        filter_seqs/filter_seqs.fna ?
+  --filter_dir FILTER_DIR
+                        path to directory of sequences to filter. If not set, Marker-MAGu looks for
+                        environmental variable MARKERMAGU_FILTER. Then, if this variable is unset, it
+                        this is unset, DB path is assumed to be
+                        /cmmr/apps/conda_users/u241374/envs/marker-magu/lib/python3.11/site-
+                        packages/markermagu
+  --temp TEMP_DIR       path of temporary directory. Default is {OUTPUT_DIR}/{SAMPLE}_temp/
+  --keep KEEP           True of False. Keep the intermediate files, located in the temporary
+                        directory? These can add up, so it is not recommended if space is a concern.
+  --db DB               DB path. If not set, Marker-MAGu looks for environmental variable
+                        MARKERMAGU_DB. Then, if this variable is unset, it this is unset, DB path is
+                        assumed to be /cmmr/apps/conda_users/u241374/envs/marker-
+                        magu/lib/python3.11/site-packages/markermagu
+  --detection {default,relaxed}
+                        Stringency of SGB detection. "default" setting requires >=75 percent of marker
+                        genes with at least 1 read mapped. "relaxed" setting requires >= 33.3 percent
+                        of marker genes with at least 1 read mapped AND at least 3 marker genes
+                        detected.
+
 ```
 
 ## Combine Output tables in a Project Directory
