@@ -1,5 +1,6 @@
 # Marker-MAGu
 
+[![Anaconda-Server Badge](https://anaconda.org/bioconda/marker-magu/badges/version.svg)](https://anaconda.org/bioconda/marker-magu) [![Anaconda-Server Badge](https://anaconda.org/bioconda/marker-magu/badges/downloads.svg)](https://anaconda.org/bioconda/marker-magu)
 Trans-Kingdom Marker Gene Pipeline for Taxonomic Profiling of Human Metagenomes
 
 If you want to detect and quantify phages, bacteria, and archaea in whole genome shotgun reads from human-derived samples, `Marker-MAGu` is the tool for you.
@@ -9,11 +10,13 @@ Basically, this tool uses the strategy (marker gene detection) and database (mar
 1)  adds marker genes from 10s of thousands of phages derived from human metagenomes
 2)  tweaks the thresholds so that phages and bacteria are detected with similar specificity and sensitivity
 
-*The relative abundance of bacteria/archaea/microeukaryotes with be nearly identical to `Metaphlan4`, BUT `Marker-MAGu` is a bit less sensitive and a bit more specific. `Marker-MAGu` uses a stricter threshold (75% of marker genes) than `Metaphlan4` (33% of marker genes by default), so this is expected.*
+*The relative abundance of bacteria/archaea with be nearly identical to `Metaphlan4` using default settings if `Marker-MAGu` is run with `--detection relaxed` (33% of marker genes required for detection). With `Marker-MAGu --detection default` output will be a bit less sensitive and a bit more specific, using a stricter threshold (75% of marker genes required for detection). Changes in settings and databases will likely change the output*
 
 Also, as in `Metaphlan4` **SGBs**, or **S**pecies-level **G**enome **B**ins are genomically-distinct species.
 
 <img src="schematic/marker_magu1.png" width="150"/>
+
+Logo by [Adrien Assie](https://github.com/aassie)
 
 ## Schematic
 
@@ -21,31 +24,15 @@ Also, as in `Metaphlan4` **SGBs**, or **S**pecies-level **G**enome **B**ins are 
 
 ## Installation
 
-**I have only tested this on Linux**
+### Conda steps
+*This will only work in Linux. If you only have access to another OS,*
+*you must use the Container steps (e.g. Docker, Singularity, Podman). See below.*
 
-1)  Clone repo
+1)  Create a new environment and install with `conda`. *Tested with `conda` version 23.5.0*
 
-`git clone https://github.com/cmmr/Marker-MAGu.git`
+`conda create -n marker-magu -c bioconda marker-magu`
 
-2)  Go to `Marker-MAGu` directory.
-
-`cd Marker-MAGu`
-
-3)  **Must have Conda installed:** use the file `environment/Marker-MAGu.yml` with `conda create` to generate the environment used with this tool.
-
-`conda env create --file environment/Marker-MAGu.yml`
-
-Note: if you can't or won't use `Conda` for environment management, you can check out the packages in`environment/Marker-MAGu.yml` and install packages manually.
-
-4)  Activate the environment.
-
-`conda activate Marker-MAGu`
-
-5)  Make a command line entry point
-
-`pip install .`
-
-5)  Download the database (\~9.6 GB when decompressed).
+2)  Download the database (\~9.9 GB when decompressed).
 
 `cd Marker-MAGu` *or `cd` to where you want the database to reside*
 
@@ -59,13 +46,34 @@ should return `e0947cb1d4a3df09829e98627021e0dd`
 
 `tar -xvf Marker-MAGu_markerDB_v1.1.tar.gz`
 
-With default instructions, you should now have the database at: `/path/to/DBs/v1.1/Marker-MAGu_markerDB.fna`
 
 `rm Marker-MAGu_markerDB_v1.1.tar.gz`
 
-6)  Set the `Marker-MAGu` database directory variable **MARKERMAGU_DB**, e.g.:
+3)  Set the `Marker-MAGu` database directory variable **MARKERMAGU_DB**, e.g.:
 
-`conda env config vars set MARKERMAGU_DB=/path/to/DBs/v1.0`
+`conda env config vars set MARKERMAGU_DB=/path/to/DBs/v1.1`
+
+
+### Container (Docker, Singularity, Podman)
+
+<details>
+
+  <summary>Basic Instructions</summary>
+  
+  **Please note that, while I WAS able to get this to run using `Docker`/`Docker Desktop` on my Mac, I am not a `Docker` expert, and I may be unable to troubleshoot issues.**
+  
+  1)  Pull Docker image (v0.4.0 shown below)
+  
+  `docker pull quay.io/biocontainers/marker-magu:0.4.0--pyhdfd78af_0`
+  
+  *Notes:* 
+  
+    * be sure to mount your volumes/directories with the `Marker-MAGu` database as well as those with input read files 
+    
+    * I believe you can save environmental variables like MARKERMAGU_DB in `Docker` containers
+
+
+</details>
 
 ## (OPTIONAL) Database for filtering out host reads and spike-ins
 
@@ -74,15 +82,18 @@ You could filter unwanted sequences out upstream of this tool, but this will all
 Here are instructions for downloading and formatting the human genome and phiX spike-in (3 GB decompressed).
 
 ```         
-cd Marker-MAGu
+cd Marker-MAGu ### or `cd` to where you want the filter_seqs to reside
+
 mkdir filter_seqs && cd filter_seqs
 
 ## download phiX genome and gunzip
 wget https://ftp.ncbi.nlm.nih.gov/genomes/refseq/viral/Sinsheimervirus_phiX174/latest_assembly_versions/GCF_000819615.1_ViralProj14015/GCF_000819615.1_ViralProj14015_genomic.fna.gz
+
 gunzip GCF_000819615.1_ViralProj14015_genomic.fna.gz
 
 ## download human genome and gunzip
 wget https://ftp.ncbi.nlm.nih.gov/genomes/refseq/vertebrate_mammalian/Homo_sapiens/latest_assembly_versions/GCF_009914755.1_T2T-CHM13v2.0/GCF_009914755.1_T2T-CHM13v2.0_genomic.fna.gz
+
 gunzip GCF_009914755.1_T2T-CHM13v2.0_genomic.fna.gz
 
 ## concatenate files
@@ -109,8 +120,6 @@ You might run this as part of a bash script, do your own upstream read processin
 `-r reads file(s) (.fastq)`
 
 `-s sample name (no space characters)`
-
-`-t # of threads`
 
 `-o output directory (may be shared with other samples)`
 
@@ -176,7 +185,6 @@ This command will generate the table `myproject_MM1.combined_profile.tsv`.
 
 In my experience, the step which uses `minimap2` to align reads to the marker gene database uses about 66GB of memory.
 
-**Insert time tests with different #CPUS and #reads**
 
 ### Output table
 
@@ -202,6 +210,11 @@ wide_dt <- long_dt %>%
   pivot_wider(names_from = sampleID, 
               values_from = rel_abundance, values_fill = 0)
 ```
+
+### Host predictions, virulence, etc. for phages
+
+Please see the file `Marker-MAGu_virus_DB_v1.1_metadata.tsv` which is downloaded with the `Marker-MAGu` database. You can merge this table and any `Marker-MAGu` output table on the "lineage" column.
+
 
 ### Source for virus taxonomy
 
