@@ -26,8 +26,8 @@ Logo by [Adrien Assie](https://github.com/aassie)
 ## Installation
 
 ### Conda steps
-*This will only work in Linux. If you only have access to another OS,*
-*you must use the Container steps (e.g. Docker, Singularity, Podman). See below.*
+
+*This will only work in Linux. If you only have access to another OS,* *you must use the Container steps (e.g. Docker, Singularity, Podman). See below.*
 
 1)  Create a new environment and install with `conda`. *Tested with `conda` version 23.5.0*
 
@@ -47,32 +47,31 @@ should return `e0947cb1d4a3df09829e98627021e0dd`
 
 `tar -xvf Marker-MAGu_markerDB_v1.1.tar.gz`
 
-
 `rm Marker-MAGu_markerDB_v1.1.tar.gz`
 
 3)  Set the `Marker-MAGu` database directory variable **MARKERMAGU_DB**, e.g.:
 
 `conda env config vars set MARKERMAGU_DB=/path/to/DBs/v1.1`
 
-
 ### Container (Docker, Singularity, Podman)
 
 <details>
 
-  <summary>Basic Instructions</summary>
-  
-  **Please note that, while I WAS able to get this to run using `Docker`/`Docker Desktop` on my Mac, I am not a `Docker` expert, and I may be unable to troubleshoot issues.**
-  
-  1)  Pull Docker image (v0.4.0 shown below)
-  
-  `docker pull quay.io/biocontainers/marker-magu:0.4.0--pyhdfd78af_0`
-  
-  *Notes:* 
-  
-    * be sure to mount your volumes/directories with the `Marker-MAGu` database as well as those with input read files 
-    
-    * I believe you can save environmental variables like MARKERMAGU_DB in `Docker` containers
+<summary>Basic Instructions</summary>
 
+**Please note that, while I WAS able to get this to run using `Docker`/`Docker Desktop` on my Mac, I am not a `Docker` expert, and I may be unable to troubleshoot issues.**
+
+1)  Pull Docker image (v0.4.0 shown below)
+
+`docker pull quay.io/biocontainers/marker-magu:0.4.0--pyhdfd78af_0`
+
+*Notes:*
+
+```         
+* be sure to mount your volumes/directories with the `Marker-MAGu` database as well as those with input read files 
+
+* I believe you can save environmental variables like MARKERMAGU_DB in `Docker` containers
+```
 
 </details>
 
@@ -168,7 +167,7 @@ markermagu -h
 
 ## Full help menu
 
-```
+```         
 usage: markermagu [-h] -r READS [READS ...] -s SAMPLE -o OUTPUT_DIR [--version] [-t CPU] [-q QUAL]
                   [-f FILTER_SEQS] [--filter_dir FILTER_DIR] [--temp TEMP_DIR] [--keep KEEP] [--db DB]
                   [--detection {default,relaxed}]
@@ -214,7 +213,6 @@ options:
                         genes with at least 1 read mapped. "relaxed" setting requires >= 33.3 percent
                         of marker genes with at least 1 read mapped AND at least 3 marker genes
                         detected.
-
 ```
 
 ## Combine Output tables in a Project Directory
@@ -236,7 +234,6 @@ This command will generate the table `myproject_MM1.combined_profile.tsv`.
 ### Resource Usage
 
 In my experience, the step which uses `minimap2` to align reads to the marker gene database uses about 66GB of memory.
-
 
 ### Output table
 
@@ -263,10 +260,15 @@ wide_dt <- long_dt %>%
               values_from = rel_abundance, values_fill = 0)
 ```
 
+### Trove of Gut Virus Genomes
+
+See details and download full genome database on Zenodo:
+
+[Link](https://zenodo.org/record/8357021)
+
 ### Host predictions, virulence, etc. for phages
 
 Please see the file `Marker-MAGu_virus_DB_v1.1_metadata.tsv` which is downloaded with the `Marker-MAGu` database. You can merge this table and any `Marker-MAGu` output table on the "lineage" column.
-
 
 ### Source for virus taxonomy
 
