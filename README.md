@@ -125,7 +125,7 @@ You might run this as part of a bash script, do your own upstream read processin
 
 Activate the conda environment:
 
-`conda activate Marker-MAGu`
+`conda activate marker-magu`
 
 Individual samples can be run with the python script. E.g.:
 
@@ -219,12 +219,12 @@ options:
 
 **The project directory should have multiple `*.detected_species.tsv` tables.**
 
-Activate conda environment: `conda activate Marker-MAGu`
+Activate conda environment: `conda activate marker-magu`
 
 Then, run Rscript with the project directory as the first and only argument:
 
 ```         
-Rscript /path/to/Marker-MAGu/scripts/combine_sample_tables1.R myproject_MM1
+Rscript /path/to/Marker-MAGu/src/markermagu/combine_sample_tables1.R myproject_MM1
 ```
 
 This command will generate the table `myproject_MM1.combined_profile.tsv`.
@@ -420,9 +420,9 @@ blastn -query ${MYSEQS}.hallmark_genes.nucl.concat.fna -db blast_DBs/${MYSEQS}.h
 **2) anicalc/aniclust to find redundant sequences**
 
 ```         
-python /path/to/Marker-MAGu/src/utils/anicalc.py -i ${MYSEQS}.hallmark_genes.nucl.concat.blastn.tsv -o ${MYSEQS}.hallmark_genes.nucl.concat.anicalc.tsv
+python /path/to/Marker-MAGu/src/markermagu/utils/anicalc.py -i ${MYSEQS}.hallmark_genes.nucl.concat.blastn.tsv -o ${MYSEQS}.hallmark_genes.nucl.concat.anicalc.tsv
 
-python /path/to/Marker-MAGu/src/utils/aniclust.py --fna ${MYSEQS}.hallmark_genes.nucl.concat.fna --ani ${MYSEQS}.hallmark_genes.nucl.concat.anicalc.tsv --out ${MYSEQS}.hallmark_genes.nucl.concat.aniclust.ANI95_TCOV85.tsv --min_ani 95 --min_tcov 85 --min_qcov 0
+python /path/to/Marker-MAGu/src/markermagu/utils/aniclust.py --fna ${MYSEQS}.hallmark_genes.nucl.concat.fna --ani ${MYSEQS}.hallmark_genes.nucl.concat.anicalc.tsv --out ${MYSEQS}.hallmark_genes.nucl.concat.aniclust.ANI95_TCOV85.tsv --min_ani 95 --min_tcov 85 --min_qcov 0
 
 cut -f1 ${MYSEQS}.hallmark_genes.nucl.concat.aniclust.ANI95_TCOV85.tsv > ${MYSEQS}.hallmark_genes.nucl.concat.exemplars1.txt
 ```
@@ -454,7 +454,7 @@ cd Marker-MAGu/DBs
 
 mkdir v_${MYSEQS}
 
-cat v1.0/Marker-MAGu_markerDB.fna /path/to/${MYSEQS}.hallmark_genes.nucl.exemplars1.fmt.fna > v_${MYSEQS}/Marker-MAGu_markerDB.fna
+cat v1.1/Marker-MAGu_markerDB.fna /path/to/${MYSEQS}.hallmark_genes.nucl.exemplars1.fmt.fna > v_${MYSEQS}/Marker-MAGu_markerDB.fna
 ```
 
 That's it. Remember to specify the updated database when running `Marker-MAGu`. E.g. `--db v_my_viruses1`
