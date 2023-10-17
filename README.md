@@ -39,7 +39,7 @@ Logo by [Adrien Assie](https://github.com/aassie)
 
 `mkdir DBs && cd DBs`
 
-`wget https://zenodo.org/record/8342581/files/Marker-MAGu_markerDB_v1.1.tar.gz`
+`wget https://zenodo.org/records/8342581/files/Marker-MAGu_markerDB_v1.1.tar.gz`
 
 `md5sum Marker-MAGu_markerDB_v1.1.tar.gz`
 
@@ -264,7 +264,7 @@ wide_dt <- long_dt %>%
 
 See details and download full genome database on Zenodo:
 
-[Link](https://zenodo.org/record/8357021)
+[Link](https://zenodo.org/records/8357021)
 
 ### Host predictions, virulence, etc. for phages
 
@@ -322,7 +322,7 @@ blast v2.9.0
 
 **2) download DB**
 
-`wget https://zenodo.org/record/4966268/files/hmmscan_DBs.tgz`
+`wget https://zenodo.org/records/4966268/files/hmmscan_DBs.tgz`
 
 **3) unpack**
 
